@@ -1,0 +1,2044 @@
+/* ==========================================================================
+   ZİKİRMATİK & VİRD PRO - STYLESHEET
+   Design & Architecture: Serhat Sarıboğa
+   Theme: Lüks İslami Emerald & Imperial Gold Glassmorphism
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@600;700;800&display=swap');
+
+:root {
+  /* Emerald & Gold (Varsayılan Lüks Tema) */
+  --bg-primary: #031e17;
+  --bg-secondary: #052e24;
+  --bg-card: rgba(6, 78, 59, 0.45);
+  --bg-card-hover: rgba(6, 78, 59, 0.65);
+  --bg-glass: rgba(4, 47, 36, 0.65);
+  --border-color: rgba(234, 179, 8, 0.22);
+  --border-active: rgba(254, 240, 138, 0.65);
+  
+  --gold-primary: #eab308;
+  --gold-light: #fef08a;
+  --gold-dark: #ca8a04;
+  --gold-gradient: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #ca8a04 100%);
+  --gold-glow: 0 0 20px rgba(234, 179, 8, 0.35);
+
+  --accent-emerald: #10b981;
+  --accent-glow: 0 0 25px rgba(16, 185, 129, 0.3);
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-gold: #fde047;
+
+  --counter-bg: radial-gradient(circle at 35% 30%, #064e3b 0%, #022c22 75%, #011812 100%);
+  --counter-ring: linear-gradient(145deg, #fef08a, #ca8a04, #854d0e);
+  --counter-btn: radial-gradient(circle at 35% 30%, #10b981 0%, #047857 60%, #064e3b 100%);
+  --counter-btn-active: radial-gradient(circle at 45% 45%, #059669 0%, #047857 70%, #022c22 100%);
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  --font-arabic: 'Amiri', serif;
+  --font-title: 'Cinzel', serif;
+}
+
+/* Gece Mavisi Tema */
+body.theme-midnight {
+  --bg-primary: #040d1a;
+  --bg-secondary: #081a33;
+  --bg-card: rgba(15, 39, 68, 0.5);
+  --bg-card-hover: rgba(15, 39, 68, 0.7);
+  --bg-glass: rgba(8, 26, 51, 0.7);
+  --border-color: rgba(56, 189, 248, 0.22);
+  --border-active: rgba(186, 230, 253, 0.65);
+  --gold-primary: #38bdf8;
+  --gold-light: #e0f2fe;
+  --gold-dark: #0284c7;
+  --gold-gradient: linear-gradient(135deg, #e0f2fe 0%, #38bdf8 50%, #0284c7 100%);
+  --gold-glow: 0 0 20px rgba(56, 189, 248, 0.35);
+  --text-gold: #7dd3fc;
+  --counter-bg: radial-gradient(circle at 35% 30%, #0c2340 0%, #061326 75%, #030a14 100%);
+  --counter-ring: linear-gradient(145deg, #e0f2fe, #38bdf8, #0369a1);
+  --counter-btn: radial-gradient(circle at 35% 30%, #38bdf8 0%, #0284c7 60%, #075985 100%);
+}
+
+/* Kabe Siyahı & Altın Tema */
+body.theme-onyx {
+  --bg-primary: #0a0a0c;
+  --bg-secondary: #141418;
+  --bg-card: rgba(28, 25, 23, 0.6);
+  --bg-card-hover: rgba(41, 37, 36, 0.8);
+  --bg-glass: rgba(20, 20, 24, 0.75);
+  --border-color: rgba(245, 158, 11, 0.25);
+  --border-active: rgba(253, 230, 138, 0.75);
+  --gold-primary: #f59e0b;
+  --gold-light: #fde68a;
+  --gold-dark: #b45309;
+  --gold-gradient: linear-gradient(135deg, #fde68a 0%, #f59e0b 50%, #b45309 100%);
+  --gold-glow: 0 0 22px rgba(245, 158, 11, 0.4);
+  --text-gold: #fcd34d;
+  --counter-bg: radial-gradient(circle at 35% 30%, #1f1f23 0%, #111114 75%, #080809 100%);
+  --counter-ring: linear-gradient(145deg, #fde68a, #d97706, #78350f);
+  --counter-btn: radial-gradient(circle at 35% 30%, #d97706 0%, #b45309 60%, #78350f 100%);
+}
+
+/* Gül Kurusu & Rose Gold */
+body.theme-rose {
+  --bg-primary: #190a12;
+  --bg-secondary: #2b1120;
+  --bg-card: rgba(76, 29, 53, 0.45);
+  --bg-card-hover: rgba(76, 29, 53, 0.65);
+  --bg-glass: rgba(43, 17, 32, 0.7);
+  --border-color: rgba(251, 113, 133, 0.25);
+  --border-active: rgba(254, 205, 211, 0.7);
+  --gold-primary: #fb7185;
+  --gold-light: #ffe4e6;
+  --gold-dark: #e11d48;
+  --gold-gradient: linear-gradient(135deg, #ffe4e6 0%, #fb7185 50%, #e11d48 100%);
+  --gold-glow: 0 0 20px rgba(251, 113, 133, 0.35);
+  --text-gold: #fda4af;
+  --counter-bg: radial-gradient(circle at 35% 30%, #3e162b 0%, #200a16 75%, #10040a 100%);
+  --counter-ring: linear-gradient(145deg, #ffe4e6, #fb7185, #be123c);
+  --counter-btn: radial-gradient(circle at 35% 30%, #fb7185 0%, #e11d48 60%, #9f1239 100%);
+}
+
+/* Reset & Global */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+  position: relative;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(234, 179, 8, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 10% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 90% 40%, rgba(234, 179, 8, 0.05) 0%, transparent 35%);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Arka Plan İslami Geometrik Motif */
+.islamic-bg-pattern {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.035;
+  background-size: 80px 80px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M40 0l10 30 30 10-30 10-10 30-10-30-30-10 30-10zM0 40l5 15 15 5-15 5-5 15-5-15-15-5 15-5zM80 40l5 15 15 5-15 5-5 15-5-15-15-5 15-5z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Ana Uygulama Kapsayıcısı */
+.app-container {
+  width: 100%;
+  max-width: 540px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  padding-bottom: 90px;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.6);
+  background: var(--bg-primary);
+}
+
+@media (min-width: 768px) {
+  .app-container {
+    margin: 20px auto;
+    min-height: calc(100vh - 40px);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+  }
+}
+
+/* ==========================================================================
+   ÜST BAŞLIK & HEADER
+   ========================================================================== */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg-glass);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--gold-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #031e17;
+  box-shadow: var(--gold-glow);
+  font-size: 22px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.brand-info h1 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.brand-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 800;
+  background: var(--gold-gradient);
+  color: #022c22;
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.brand-subtitle {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-size: 1.1rem;
+}
+
+.icon-btn:hover, .icon-btn:focus-visible {
+  background: rgba(234, 179, 8, 0.15);
+  border-color: var(--gold-primary);
+  color: var(--gold-light);
+  transform: translateY(-2px);
+}
+
+.icon-btn.active {
+  background: var(--gold-gradient);
+  color: #022c22;
+  border-color: var(--gold-light);
+}
+
+/* ==========================================================================
+   NAMAZ VAKİTLERİ & GÜNÜN BİLGİSİ (HERO WIDGET)
+   ========================================================================== */
+.prayer-hero-widget {
+  margin: 16px 16px 8px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(12px);
+}
+
+.prayer-hero-widget::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(234, 179, 8, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.location-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.location-chip:hover {
+  background: rgba(234, 179, 8, 0.2);
+  border-color: var(--gold-primary);
+}
+
+.date-info {
+  text-align: right;
+  font-size: 0.75rem;
+}
+
+.hijri-date {
+  color: var(--text-gold);
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+.gregorian-date {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+}
+
+.next-prayer-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.8), rgba(2, 44, 34, 0.9));
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 14px;
+}
+
+.next-prayer-title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.next-prayer-name {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  text-shadow: 0 0 10px rgba(234, 179, 8, 0.3);
+}
+
+.countdown-box {
+  text-align: right;
+}
+
+.countdown-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.countdown-timer {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  display: inline-block;
+}
+
+/* Vakit İkonları Çubuğu (5 Vakit + İmsak) */
+.prayer-times-bar {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.prayer-time-item {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  padding: 8px 4px;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.prayer-time-item.active {
+  background: var(--gold-gradient);
+  color: #022c22;
+  border-color: var(--gold-light);
+  transform: translateY(-2px);
+  box-shadow: var(--gold-glow);
+}
+
+.prayer-time-item.active .time-label,
+.prayer-time-item.active .time-value {
+  color: #022c22 !important;
+  font-weight: 800;
+}
+
+.prayer-time-item.passed {
+  opacity: 0.6;
+}
+
+.time-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.time-value {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   SEKME İÇERİKLERİ (TAB CONTENTS)
+   ========================================================================== */
+.tab-content {
+  display: none;
+  padding: 10px 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   1. ZİKİRMATİK MODÜLÜ (REALISTIC & MODERN TASBEEH)
+   ========================================================================== */
+.zikir-header-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(10px);
+}
+
+.active-zikir-display h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.active-zikir-arabic {
+  font-family: var(--font-arabic);
+  font-size: 1.25rem;
+  color: var(--text-gold);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.zikir-selector-btn {
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid var(--gold-primary);
+  color: var(--gold-light);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.zikir-selector-btn:hover {
+  background: var(--gold-gradient);
+  color: #022c22;
+}
+
+/* Mekanik & Dijital Zikirmatik Kasası */
+.tasbeeh-device {
+  background: var(--counter-bg);
+  border: 3px solid transparent;
+  border-image: var(--counter-ring) 1;
+  border-radius: 40px;
+  padding: 24px 20px 32px 20px;
+  margin: 0 auto 20px auto;
+  max-width: 380px;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.7),
+    inset 0 2px 6px rgba(255, 255, 255, 0.15),
+    inset 0 -10px 20px rgba(0, 0, 0, 0.8);
+  position: relative;
+  text-align: center;
+  border: 1px solid var(--border-active);
+}
+
+/* Dijital LCD Ekran */
+.digital-lcd {
+  background: #02140e;
+  border: 2px solid #0d3829;
+  box-shadow: inset 0 3px 12px rgba(0, 0, 0, 0.9), 0 0 15px rgba(16, 185, 129, 0.1);
+  border-radius: 14px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  position: relative;
+}
+
+.lcd-top-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+  color: var(--accent-emerald);
+  margin-bottom: 4px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.lcd-target-info {
+  color: var(--gold-light);
+}
+
+.lcd-counter-value {
+  font-family: 'Outfit', 'Courier New', monospace;
+  font-size: 3.8rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 4px;
+  color: #34d399;
+  text-shadow: 0 0 20px rgba(52, 211, 153, 0.6);
+  user-select: none;
+}
+
+.lcd-progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.lcd-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--gold-gradient);
+  box-shadow: var(--gold-glow);
+  transition: width 0.15s ease-out;
+}
+
+/* Yardımcı Butonlar Çubuğu */
+.device-controls-row {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 0 10px;
+}
+
+.device-sub-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #374151 0%, #1f2937 60%, #111827 100%);
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 700;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.device-sub-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+.device-sub-btn span {
+  font-size: 0.6rem;
+  margin-top: 1px;
+}
+
+.btn-reset {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.3);
+}
+
+/* Dev Ana Zikir Butonu */
+.main-count-btn-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px 0;
+}
+
+.main-count-btn {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: var(--counter-btn);
+  border: 4px solid var(--gold-primary);
+  box-shadow: 
+    0 12px 30px rgba(0, 0, 0, 0.8),
+    0 0 35px rgba(234, 179, 8, 0.35),
+    inset 0 6px 15px rgba(255, 255, 255, 0.3),
+    inset 0 -8px 20px rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  font-size: 2.2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.main-count-btn:active, .main-count-btn.pressed {
+  transform: scale(0.93) translateY(4px);
+  background: var(--counter-btn-active);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.9),
+    0 0 15px rgba(234, 179, 8, 0.2),
+    inset 0 4px 10px rgba(0, 0, 0, 0.8);
+}
+
+.main-count-btn .btn-text {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  margin-top: 2px;
+}
+
+/* Hızlı Hedef & Seçenek Çubukları */
+.quick-settings-bar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.target-badge {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.target-badge:hover, .target-badge.active {
+  background: var(--gold-gradient);
+  color: #022c22;
+  border-color: var(--gold-light);
+}
+
+/* ==========================================================================
+   2. GÜNLÜK VİRDLER & PROGRAMLAR MODÜLÜ
+   ========================================================================== */
+.section-title-box {
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title-box h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vird-tabs-subnav {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 14px;
+  scrollbar-width: none;
+}
+
+.vird-tabs-subnav::-webkit-scrollbar {
+  display: none;
+}
+
+.subnav-btn {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.subnav-btn.active {
+  background: var(--gold-gradient);
+  color: #022c22;
+  border-color: var(--gold-light);
+  font-weight: 800;
+}
+
+.vird-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vird-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  position: relative;
+  transition: all 0.25s ease;
+}
+
+.vird-card:hover {
+  border-color: var(--gold-primary);
+  background: var(--bg-card-hover);
+}
+
+.vird-card.completed {
+  border-color: var(--accent-emerald);
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.vird-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.vird-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vird-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(234, 179, 8, 0.15);
+  color: var(--gold-light);
+  border: 1px solid var(--border-color);
+}
+
+.vird-arabic {
+  font-family: var(--font-arabic);
+  font-size: 1.2rem;
+  color: var(--text-gold);
+  text-align: right;
+  direction: rtl;
+  line-height: 1.6;
+  margin: 6px 0;
+}
+
+.vird-turkish {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.vird-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vird-progress-counter {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--gold-light);
+}
+
+.vird-start-btn {
+  background: var(--gold-gradient);
+  color: #022c22;
+  border: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.15s;
+}
+
+.vird-start-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   3. ESMÂÜL HÜSNÂ (99 İSİM)
+   ========================================================================== */
+.search-filter-box {
+  margin-bottom: 14px;
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 16px 12px 42px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.25s;
+}
+
+.search-input:focus {
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 15px rgba(234, 179, 8, 0.2);
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gold-light);
+  font-size: 1.1rem;
+}
+
+.esma-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.esma-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 0.25s;
+  position: relative;
+  overflow: hidden;
+}
+
+.esma-card:hover {
+  border-color: var(--gold-primary);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.esma-number {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+.esma-arabic {
+  font-family: var(--font-arabic);
+  font-size: 1.7rem;
+  color: var(--gold-light);
+  text-align: right;
+  direction: rtl;
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.esma-turkish-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.esma-meaning {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-bottom: 10px;
+}
+
+.esma-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.esma-ebced {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--text-gold);
+}
+
+.esma-zikret-btn {
+  background: rgba(234, 179, 8, 0.15);
+  border: 1px solid var(--gold-primary);
+  color: var(--gold-light);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.esma-zikret-btn:hover {
+  background: var(--gold-gradient);
+  color: #022c22;
+}
+
+/* ==========================================================================
+   4. İSTATİSTİKLER & GEÇMİŞ
+   ========================================================================== */
+.stats-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.stat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.stat-icon {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--gold-light);
+}
+
+.stat-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-item {
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.history-item-name {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+}
+
+.history-item-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.history-item-count {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--accent-emerald);
+}
+
+/* ==========================================================================
+   5. HAKKINDA & AYARLAR (NİHAT YAZGAN)
+   ========================================================================== */
+.about-hero-card {
+  background: linear-gradient(145deg, rgba(6, 78, 59, 0.7) 0%, rgba(2, 44, 34, 0.85) 100%);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  text-align: center;
+  margin-bottom: 18px;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+}
+
+.about-avatar {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px auto;
+  border-radius: 50%;
+  background: var(--gold-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: #022c22;
+  box-shadow: var(--gold-glow);
+}
+
+.about-author-name {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  margin-bottom: 2px;
+}
+
+.about-role {
+  font-size: 0.8rem;
+  color: var(--text-gold);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.about-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 420px;
+  margin: 0 auto 14px auto;
+}
+
+.settings-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.settings-row:last-child {
+  border-bottom: none;
+}
+
+.settings-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.settings-sublabel {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   ALT NAVİGASYON (BOTTOM NAVIGATION BAR)
+   ========================================================================== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 540px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px)) 12px;
+  z-index: 90;
+}
+
+.nav-item {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  transition: all 0.25s ease;
+}
+
+.nav-item i {
+  font-size: 1.25rem;
+  transition: transform 0.2s ease;
+}
+
+.nav-item:hover {
+  color: var(--gold-light);
+}
+
+.nav-item.active {
+  color: var(--gold-light);
+  background: rgba(234, 179, 8, 0.12);
+}
+
+.nav-item.active i {
+  transform: translateY(-2px) scale(1.1);
+  color: var(--gold-primary);
+}
+
+/* ==========================================================================
+   MODAL & DİYALOGLAR (<dialog>)
+   ========================================================================== */
+dialog {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-active);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  max-width: 440px;
+  width: 90%;
+  margin: auto;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(20px);
+  outline: none;
+}
+
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.dialog-header h3 {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  color: var(--gold-light);
+}
+
+.dialog-close-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: var(--text-secondary);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.dialog-content {
+  margin-bottom: 16px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: var(--gold-gradient);
+  color: #022c22;
+  border: none;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+/* ==========================================================================
+   MINI WIDGET FLOATING MODE (YÜZEN WIDGET MODU)
+   ========================================================================== */
+.floating-widget-badge {
+  position: fixed;
+  bottom: 85px;
+  right: 18px;
+  background: var(--gold-gradient);
+  color: #022c22;
+  border: none;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg), var(--gold-glow);
+  z-index: 80;
+  transition: transform 0.2s;
+}
+
+.floating-widget-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Zikir Seçim Listesi Öğeleri */
+.preset-zikir-item {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.preset-zikir-item:hover {
+  background: rgba(234, 179, 8, 0.15);
+  border-color: var(--gold-primary);
+}
+
+/* ==========================================================================
+   YENİ EKLENEN GELİŞMİŞ ÖZELLİKLER TASARIMI
+   ========================================================================== */
+
+/* 1. Zikirmatik Mod Seçici */
+.zikir-mode-selector {
+  display: flex;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  padding: 4px;
+  margin: 12px 16px 4px;
+  gap: 4px;
+}
+
+.zikir-mode-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 8px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.25s ease;
+}
+
+.zikir-mode-btn.active {
+  background: var(--gold-gradient);
+  color: #022c22;
+  box-shadow: var(--gold-glow);
+}
+
+/* 2. Günün Manevi Kartı */
+.daily-spiritual-card {
+  margin: 10px 16px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.daily-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.daily-card-tag {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gold-light);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.daily-card-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.daily-action-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.daily-action-btn:hover {
+  background: var(--gold-primary);
+  color: #022c22;
+}
+
+.daily-arabic {
+  font-family: var(--font-arabic);
+  font-size: 1.15rem;
+  color: var(--text-gold);
+  direction: rtl;
+  text-align: right;
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.daily-translation {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  line-height: 1.45;
+  font-style: italic;
+}
+
+.daily-source {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+/* 3. Hakiki Boncuklu Tesbih Simülasyonu */
+.bead-tasbeeh-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 16px 20px;
+}
+
+.bead-rosary-viewport {
+  width: 280px;
+  height: 260px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0;
+  user-select: none;
+  touch-action: none;
+  cursor: grab;
+}
+
+.bead-rosary-viewport:active {
+  cursor: grabbing;
+}
+
+.rosary-thread {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 3px dashed rgba(234, 179, 8, 0.4);
+  pointer-events: none;
+}
+
+.rosary-bead-active {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fef08a 0%, #eab308 40%, #854d0e 85%, #451a03 100%);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6), inset 0 2px 6px rgba(255,255,255,0.6), var(--gold-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: beadFloat 3s ease-in-out infinite;
+}
+
+.rosary-bead-active:active {
+  transform: scale(0.92);
+}
+
+.bead-number {
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: #2b1102;
+  font-family: var(--font-display);
+}
+
+.rosary-bead-prev, .rosary-bead-next {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ca8a04 0%, #854d0e 60%, #3a1a06 100%);
+  opacity: 0.65;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+
+.rosary-bead-prev { left: 25px; transform: scale(0.85); }
+.rosary-bead-next { right: 25px; transform: scale(0.85); }
+
+.imame-tassel {
+  position: absolute;
+  bottom: 0;
+  font-size: 1.5rem;
+  color: var(--gold-primary);
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+}
+
+@keyframes beadFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.swipe-hint-badge {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  margin-top: 4px;
+}
+
+/* 4. Sesli Zikir Algılama Modu */
+.voice-zikir-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px 16px;
+  gap: 14px;
+}
+
+.voice-pulse-btn {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--counter-btn);
+  border: 3px solid var(--border-active);
+  color: #fff;
+  font-size: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-lg), var(--accent-glow);
+}
+
+.voice-pulse-btn.listening {
+  background: radial-gradient(circle at 35% 30%, #ef4444 0%, #dc2626 60%, #991b1b 100%);
+  animation: micPulse 1.4s infinite;
+  box-shadow: 0 0 35px rgba(239, 68, 68, 0.6);
+}
+
+@keyframes micPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70% { transform: scale(1.08); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.voice-detected-word {
+  min-height: 38px;
+  padding: 8px 18px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px dashed var(--gold-primary);
+  border-radius: var(--radius-full);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.voice-command-hints {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 320px;
+}
+
+/* 5. Kıble Pusulası (Qibla Compass) */
+.qibla-card-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  gap: 16px;
+}
+
+.compass-wrapper {
+  position: relative;
+  width: 270px;
+  height: 270px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #052e24 0%, #031e17 70%, #01120d 100%);
+  border: 6px solid #ca8a04;
+  box-shadow: 0 0 30px rgba(0,0,0,0.7), inset 0 0 20px rgba(0,0,0,0.8), var(--gold-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.compass-dial {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: transform 0.2s cubic-bezier(0.1, 0.7, 0.1, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compass-needle-kaaba {
+  position: absolute;
+  width: 8px;
+  height: 220px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.kaaba-icon-pin {
+  width: 38px;
+  height: 38px;
+  background: #000;
+  border: 2px solid var(--gold-primary);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold-light);
+  font-size: 1.2rem;
+  box-shadow: 0 0 15px rgba(234, 179, 8, 0.7);
+}
+
+.compass-center-pivot {
+  width: 20px;
+  height: 20px;
+  background: var(--gold-gradient);
+  border-radius: 50%;
+  position: absolute;
+  z-index: 12;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+.qibla-aligned-status {
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.qibla-aligned-status.aligned {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #fff;
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.6);
+  animation: glowPulse 1.5s infinite;
+}
+
+.qibla-aligned-status.not-aligned {
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+@keyframes glowPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.qibla-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.qibla-info-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+  text-align: center;
+}
+
+.qibla-info-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--gold-light);
+}
+
+.qibla-info-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* 6. Kaza Namazı & Oruç Takipçisi */
+.kaza-tracker-container {
+  padding: 14px 16px;
+}
+
+.kaza-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.kaza-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  backdrop-filter: blur(8px);
+}
+
+.kaza-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kaza-name {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.kaza-count {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: var(--gold-light);
+  font-family: var(--font-display);
+}
+
+.kaza-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.kaza-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 6px 0;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kaza-btn:hover {
+  background: var(--gold-primary);
+  color: #022c22;
+}
+
+.kaza-btn.btn-plus {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34d399;
+}
+
+.kaza-summary-box {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.7) 0%, rgba(4, 47, 36, 0.9) 100%);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 7. Dini Günler & Kandiller Takvimi */
+.holy-days-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px;
+}
+
+.holy-day-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.holy-day-card.upcoming {
+  border-color: var(--gold-primary);
+  background: rgba(234, 179, 8, 0.08);
+}
+
+.holy-day-title {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.holy-day-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.holy-day-badge {
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+}
+
+.holy-day-badge.highlight {
+  background: var(--gold-gradient);
+  color: #022c22;
+  box-shadow: var(--gold-glow);
+}
+
+/* 8. Kur'an-ı Kerim Sureler & Ses Çalar */
+.quran-container {
+  padding: 14px 16px;
+}
+
+.surah-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.surah-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.surah-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-gold);
+}
+
+.surah-play-btn {
+  background: var(--gold-gradient);
+  color: #022c22;
+  border: none;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.surah-arabic-text {
+  font-family: var(--font-arabic);
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  direction: rtl;
+  text-align: right;
+  line-height: 1.8;
+  padding: 8px 0;
+  border-bottom: 1px dashed rgba(255,255,255,0.1);
+}
+
+.surah-translation {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* 9. Ortak Zikir & Hatim Halkası */
+.circles-container {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.circle-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.circle-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.circle-title {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.circle-target-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--gold-light);
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.circle-progress-track {
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.circle-progress-fill {
+  height: 100%;
+  background: var(--gold-gradient);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.circle-numbers-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.circle-actions-row {
+  display: flex;
+  gap: 8px;
+}
+
+.circle-add-btn {
+  flex: 1;
+  background: rgba(16, 185, 129, 0.2);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
+  padding: 8px 0;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.circle-add-btn:hover {
+  background: #10b981;
+  color: #fff;
+}
+
+/* 10. Ezan Makamları Izgarası */
+.ezan-makam-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.ezan-makam-btn {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s;
+}
+
+.ezan-makam-btn:hover, .ezan-makam-btn.playing {
+  background: var(--gold-primary);
+  color: #022c22;
+}
+
+/* Subnav 2. Satır İyileştirmesi */
+.subnav-scrollable {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 0 16px 8px;
+  scrollbar-width: none;
+}
+.subnav-scrollable::-webkit-scrollbar {
+  display: none;
+}
+

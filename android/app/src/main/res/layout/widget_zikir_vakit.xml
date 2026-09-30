@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <!-- ÜST BAŞLIK VE ŞEHİR BİLGİSİ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="🕌 Zikir &amp; Vakit Pro"
+            android:textColor="#fef08a"
+            android:textStyle="bold"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/widget_city_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="İstanbul"
+            android:textColor="#cbd5e1"
+            android:textSize="12sp"
+            android:background="@drawable/widget_box_bg"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp" />
+    </LinearLayout>
+
+    <!-- NAMAZ VAKİTLERİ YATAY ÇUBUĞU -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="6"
+        android:layout_marginBottom="12dp">
+
+        <!-- İmsak -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_box_bg"
+            android:padding="4dp"
+            android:layout_marginEnd="2dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="İmsak"
+                android:textColor="#94a3b8"
+                android:textSize="9sp" />
+            <TextView
+                android:id="@+id/widget_time_imsak"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="05:22"
+                android:textColor="#f8fafc"
+                android:textStyle="bold"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <!-- Güneş -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_box_bg"
+            android:padding="4dp"
+            android:layout_marginEnd="2dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Güneş"
+                android:textColor="#94a3b8"
+                android:textSize="9sp" />
+            <TextView
+                android:id="@+id/widget_time_gunes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="06:45"
+                android:textColor="#f8fafc"
+                android:textStyle="bold"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <!-- Öğle -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_box_bg"
+            android:padding="4dp"
+            android:layout_marginEnd="2dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Öğle"
+                android:textColor="#94a3b8"
+                android:textSize="9sp" />
+            <TextView
+                android:id="@+id/widget_time_ogle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="13:02"
+                android:textColor="#f8fafc"
+                android:textStyle="bold"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <!-- İkindi -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_box_bg"
+            android:padding="4dp"
+            android:layout_marginEnd="2dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="İkindi"
+                android:textColor="#94a3b8"
+                android:textSize="9sp" />
+            <TextView
+                android:id="@+id/widget_time_ikindi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="16:28"
+                android:textColor="#f8fafc"
+                android:textStyle="bold"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <!-- Akşam -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_box_bg"
+            android:padding="4dp"
+            android:layout_marginEnd="2dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Akşam"
+                android:textColor="#94a3b8"
+                android:textSize="9sp" />
+            <TextView
+                android:id="@+id/widget_time_aksam"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="19:08"
+                android:textColor="#f8fafc"
+                android:textStyle="bold"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <!-- Yatsı -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_box_bg"
+            android:padding="4dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Yatsı"
+                android:textColor="#94a3b8"
+                android:textSize="9sp" />
+            <TextView
+                android:id="@+id/widget_time_yatsi"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="20:25"
+                android:textColor="#f8fafc"
+                android:textStyle="bold"
+                android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ZİKİRMATİK ANA EKRAN KONTROLÜ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/widget_box_bg"
+        android:padding="8dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/widget_zikir_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sübhanallâh"
+                android:textColor="#fef08a"
+                android:textStyle="bold"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/widget_zikir_counter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="000"
+                android:textColor="#34d399"
+                android:textStyle="bold"
+                android:textSize="22sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/widget_btn_reset"
+            android:layout_width="48dp"
+            android:layout_height="38dp"
+            android:text="↺"
+            android:textColor="#f87171"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:background="@drawable/widget_box_bg"
+            android:layout_marginEnd="6dp" />
+
+        <Button
+            android:id="@+id/widget_btn_count"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:text="📿 +1 ZİKRET"
+            android:textColor="#022c22"
+            android:textStyle="bold"
+            android:textSize="13sp"
+            android:background="@drawable/widget_gold_btn"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Zikirmatik & Vird Pro | Serhat Sarıboğa</title>
+  
+  <!-- PWA & Meta Tags -->
+  <meta name="description" content="Namaz Vakitleri, Akıllı Zikirmatik, Kıble Pusulası, Kur'an Sureleri, Kaza Takibi, Dini Günler ve Günlük Virdler. Geliştirici & Tasarım: Serhat Sarıboğa">
+  <meta name="theme-color" content="#064e3b">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  
+  <!-- Icons & Fonts -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-emerald">
+
+  <!-- Arka Plan İslami Geometrik Motif -->
+  <div class="islamic-bg-pattern" aria-hidden="true"></div>
+
+  <!-- Ana Mobil Kapsayıcı -->
+  <div class="app-container">
+
+    <!-- ÜST BAŞLIK & MARKA -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <i class="bi bi-moon-stars-fill"></i>
+        </div>
+        <div class="brand-info">
+          <h1>Zikir & Vird <span class="brand-badge">PRO</span></h1>
+          <div class="brand-subtitle"><i class="bi bi-shield-check"></i> Geliştirici: Serhat Sarıboğa</div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="btn-toggle-sound" class="icon-btn" onclick="toggleSound()" title="Ses Aç/Kapat" aria-label="Ses Aç/Kapat">
+          <i class="bi bi-volume-up-fill"></i>
+        </button>
+        <button id="btn-toggle-vibrate" class="icon-btn" onclick="toggleVibrate()" title="Titreşim Aç/Kapat" aria-label="Titreşim">
+          <i class="bi bi-phone-vibrate-fill"></i>
+        </button>
+        <button class="icon-btn" onclick="document.getElementById('dialog-theme').showModal()" title="Tema Değiştir" aria-label="Tema">
+          <i class="bi bi-palette-fill"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- NAMAZ VAKİTLERİ & GERİ SAYIM WIDGETI (HER ZAMAN GÖRÜNÜR) -->
+    <section class="prayer-hero-widget" aria-label="Namaz Vakitleri">
+      <div class="hero-top-row">
+        <div class="location-chip" onclick="openCityModal()">
+          <i class="bi bi-geo-alt-fill"></i>
+          <span id="current-city-label">İstanbul</span>
+          <i class="bi bi-chevron-down" style="font-size:0.65rem;"></i>
+        </div>
+        <div class="date-info">
+          <div id="hijri-date-label" class="hijri-date">Yükleniyor...</div>
+          <div id="gregorian-date-label" class="gregorian-date"></div>
+        </div>
+      </div>
+
+      <div class="next-prayer-banner">
+        <div>
+          <div class="next-prayer-title">Sıradaki Vakit</div>
+          <div id="next-prayer-name" class="next-prayer-name">Öğle Vakti</div>
+        </div>
+        <div class="countdown-box">
+          <div class="countdown-label">Vakte Kalan Süre</div>
+          <div id="next-prayer-countdown" class="countdown-timer">--:--:--</div>
+        </div>
+      </div>
+
+      <!-- 6 Vakit Çubuğu -->
+      <div class="prayer-times-bar">
+        <div id="prayer-imsak" class="prayer-time-item">
+          <div class="time-label">İmsak</div>
+          <div id="time-imsak" class="time-value">--:--</div>
+        </div>
+        <div id="prayer-gunes" class="prayer-time-item">
+          <div class="time-label">Güneş</div>
+          <div id="time-gunes" class="time-value">--:--</div>
+        </div>
+        <div id="prayer-ogle" class="prayer-time-item">
+          <div class="time-label">Öğle</div>
+          <div id="time-ogle" class="time-value">--:--</div>
+        </div>
+        <div id="prayer-ikindi" class="prayer-time-item">
+          <div class="time-label">İkindi</div>
+          <div id="time-ikindi" class="time-value">--:--</div>
+        </div>
+        <div id="prayer-aksam" class="prayer-time-item">
+          <div class="time-label">Akşam</div>
+          <div id="time-aksam" class="time-value">--:--</div>
+        </div>
+        <div id="prayer-yatsi" class="prayer-time-item">
+          <div class="time-label">Yatsı</div>
+          <div id="time-yatsi" class="time-value">--:--</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- 1. SEKME: ZİKİRMATİK & TESBİH & SESLİ MOD                          -->
+    <!-- ================================================================= -->
+    <main id="tab-zikirmatik" class="tab-content active">
+      
+      <!-- Günün Manevi Kartı (Ayet / Hadis / Dua) -->
+      <div id="daily-spiritual-content" class="daily-spiritual-card">
+        <!-- Dinamik yüklenir -->
+      </div>
+
+      <!-- Zikir Mod Seçici (Segmented Control) -->
+      <div class="zikir-mode-selector">
+        <button class="zikir-mode-btn active" data-mode="digital" onclick="switchZikirMode('digital')">
+          <i class="bi bi-calculator"></i> Dijital
+        </button>
+        <button class="zikir-mode-btn" data-mode="beads" onclick="switchZikirMode('beads')">
+          <i class="bi bi-circle-fill"></i> Boncuk Tesbih
+        </button>
+        <button class="zikir-mode-btn" data-mode="voice" onclick="switchZikirMode('voice')">
+          <i class="bi bi-mic-fill"></i> Sesli Zikir
+        </button>
+      </div>
+
+      <!-- Aktif Zikir Başlık Kartı -->
+      <div class="zikir-header-card">
+        <div class="active-zikir-display">
+          <h2 id="active-zikir-title">Sübhanallâh</h2>
+          <div id="active-zikir-arabic" class="active-zikir-arabic">سُبْحَانَ اللَّهِ</div>
+        </div>
+        <button class="zikir-selector-btn" onclick="openZikirModal()">
+          <i class="bi bi-list-stars"></i> Zikir Değiştir
+        </button>
+      </div>
+
+      <!-- A. DİJİTAL MEKANİK ZİKİRMATİK MODU -->
+      <div id="tasbeeh-digital-device" class="tasbeeh-device">
+        <div class="digital-lcd">
+          <div class="lcd-top-info">
+            <span id="tour-counter-display">TUR: 0</span>
+            <span id="target-counter-display" class="lcd-target-info">HEDEF: 33</span>
+          </div>
+          <div id="counter-display" class="lcd-counter-value">000</div>
+          <div class="lcd-progress-bar-container">
+            <div id="lcd-progress-bar" class="lcd-progress-bar"></div>
+          </div>
+        </div>
+
+        <div class="device-controls-row">
+          <button class="device-sub-btn btn-reset" onclick="resetZikir()" title="Sıfırla">
+            <i class="bi bi-arrow-counterclockwise"></i>
+            <span>SIFIRLA</span>
+          </button>
+          <button class="device-sub-btn" onclick="decrementZikir()" title="1 Geri Al">
+            <i class="bi bi-dash-lg"></i>
+            <span>GERİ</span>
+          </button>
+        </div>
+
+        <div class="main-count-btn-container">
+          <button id="btn-count" class="main-count-btn" onclick="incrementZikir()" aria-label="Zikir Çek">
+            <i class="bi bi-fingerprint"></i>
+            <span class="btn-text">ZİKRET</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- B. HAKİKİ BONCUKLU TESBİH SİMÜLASYONU MODU -->
+      <div id="tasbeeh-beads-device" class="bead-tasbeeh-container" style="display:none;">
+        <div id="bead-rosary-viewport" class="bead-rosary-viewport">
+          <div class="rosary-thread"></div>
+          <div class="rosary-bead-prev"></div>
+          <div id="rosary-bead-active" class="rosary-bead-active">
+            <span id="bead-number-display" class="bead-number">0</span>
+          </div>
+          <div class="rosary-bead-next"></div>
+          <div class="imame-tassel"><i class="bi bi-gem"></i></div>
+        </div>
+        <div class="swipe-hint-badge">
+          <i class="bi bi-hand-index-thumb"></i> Boncuğa dokunun veya parmağınızla çekin
+        </div>
+      </div>
+
+      <!-- C. SESLE ZİKİR ALGILAMA MODU -->
+      <div id="tasbeeh-voice-device" class="voice-zikir-container" style="display:none;">
+        <button id="voice-pulse-btn" class="voice-pulse-btn" onclick="toggleVoiceListening()">
+          <i class="bi bi-mic-fill"></i>
+        </button>
+        <div id="voice-detected-word" class="voice-detected-word">
+          <i class="bi bi-soundwave"></i> Başlamak için mikrofona dokunun
+        </div>
+        <div class="voice-command-hints">
+          "Sübhanallah", "Elhamdülillah", "Allahu Ekber", "Estağfirullah" dedikçe sayacınız otomatik olarak artar.
+        </div>
+      </div>
+
+      <!-- Hızlı Hedef Belirleme -->
+      <div class="quick-settings-bar">
+        <button class="target-badge active" data-target="33" onclick="setTarget(33)">33</button>
+        <button class="target-badge" data-target="99" onclick="setTarget(99)">99</button>
+        <button class="target-badge" data-target="100" onclick="setTarget(100)">100</button>
+        <button class="target-badge" data-target="500" onclick="setTarget(500)">500</button>
+        <button class="target-badge" data-target="1000" onclick="setTarget(1000)">1.000</button>
+        <button class="target-badge" data-target="0" onclick="setTarget(0)">Serbest</button>
+      </div>
+    </main>
+
+    <!-- ================================================================= -->
+    <!-- 2. SEKME: İBADET & KIBLE & KAZA & DİNİ GÜNLER                     -->
+    <!-- ================================================================= -->
+    <section id="tab-ibadet" class="tab-content" aria-label="İbadet ve Kıble">
+      <nav class="vird-tabs-subnav" style="margin-bottom:12px;">
+        <button id="btn-ibadet-sub-kible" class="subnav-btn active" onclick="switchIbadetSubTab('kible')">
+          <i class="bi bi-compass"></i> Kıble Pusulası
+        </button>
+        <button id="btn-ibadet-sub-kaza" class="subnav-btn" onclick="switchIbadetSubTab('kaza')">
+          <i class="bi bi-check2-square"></i> Kaza & Oruç
+        </button>
+        <button id="btn-ibadet-sub-kandil" class="subnav-btn" onclick="switchIbadetSubTab('kandil')">
+          <i class="bi bi-calendar-star"></i> Kandiller
+        </button>
+      </nav>
+
+      <!-- 2A. KIBLE PUSULASI -->
+      <div id="ibadet-sub-kible" class="ibadet-sub-content">
+        <div class="qibla-card-container">
+          <div id="qibla-status-banner" class="qibla-aligned-status not-aligned">
+            <i class="bi bi-compass"></i> Pusula Hazırlanıyor...
+          </div>
+
+          <div class="compass-wrapper">
+            <div id="compass-dial" class="compass-dial">
+              <svg width="240" height="240" viewBox="0 0 240 240">
+                <circle cx="120" cy="120" r="105" fill="none" stroke="rgba(234,179,8,0.3)" stroke-width="2" stroke-dasharray="4 6"/>
+                <text x="120" y="32" fill="#ef4444" font-weight="900" font-size="16" text-anchor="middle">K</text>
+                <text x="212" y="125" fill="#fef08a" font-weight="800" font-size="14" text-anchor="middle">D</text>
+                <text x="120" y="218" fill="#fef08a" font-weight="800" font-size="14" text-anchor="middle">G</text>
+                <text x="28" y="125" fill="#fef08a" font-weight="800" font-size="14" text-anchor="middle">B</text>
+              </svg>
+            </div>
+            <div id="compass-needle-kaaba" class="compass-needle-kaaba">
+              <div class="kaaba-icon-pin" title="Kâbe-i Muazzama"><i class="bi bi-building"></i></div>
+              <div style="width:4px; height:70px; background:var(--gold-gradient); border-radius:4px;"></div>
+            </div>
+            <div class="compass-center-pivot"></div>
+          </div>
+
+          <div class="qibla-info-grid">
+            <div class="qibla-info-box">
+              <div id="qibla-heading-deg" class="qibla-info-num">0°</div>
+              <div class="qibla-info-label">Cihaz Açısı</div>
+            </div>
+            <div class="qibla-info-box">
+              <div id="qibla-target-deg" class="qibla-info-num">--°</div>
+              <div class="qibla-info-label">Kâbe İstikameti</div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; width:100%;">
+            <button class="btn-secondary" style="flex:1;" onclick="manualRotateCompass(-15)"><i class="bi bi-arrow-counterclockwise"></i> -15° Döndür</button>
+            <button class="btn-secondary" style="flex:1;" onclick="manualRotateCompass(15)"><i class="bi bi-arrow-clockwise"></i> +15° Döndür</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2B. KAZA NAMAZI & ORUÇ TAKİBİ -->
+      <div id="ibadet-sub-kaza" class="ibadet-sub-content" style="display:none;">
+        <div class="kaza-tracker-container">
+          <div class="section-title-box">
+            <h3><i class="bi bi-check2-all"></i> Kaza Namazı & Oruç Takipçisi</h3>
+          </div>
+          <div id="kaza-grid-container" class="kaza-grid">
+            <!-- Dinamik doldurulur -->
+          </div>
+          <div class="kaza-summary-box">
+            <div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">Toplam Kaza Borcu</div>
+              <div id="kaza-total-count" style="font-size:1.3rem; font-weight:900; color:var(--gold-light);">0 Vakit</div>
+            </div>
+            <button class="btn-secondary" onclick="if(confirm('Kaza kayıtları sıfırlansın mı?')){ state.kazaPrayers={sabah:0,ogle:0,ikindi:0,aksam:0,yatsi:0,vitir:0,oruc:0}; saveToStorage(); renderKazaPanel(); }">
+              <i class="bi bi-arrow-counterclockwise"></i> Sıfırla
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2C. DİNİ GÜNLER & KANDİLLER -->
+      <div id="ibadet-sub-kandil" class="ibadet-sub-content" style="display:none;">
+        <div class="section-title-box" style="margin: 0 16px 10px;">
+          <h3><i class="bi bi-calendar-event-fill"></i> Mübarek Günler ve Kandiller</h3>
+        </div>
+        <div id="holy-days-list" class="holy-days-list">
+          <!-- Dinamik doldurulur -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- 3. SEKME: KUR'AN SURELERİ, VİRDLER & ESMÂÜL HÜSNÂ                -->
+    <!-- ================================================================= -->
+    <section id="tab-virdler" class="tab-content" aria-label="Kur'an ve Virdler">
+      <nav class="vird-tabs-subnav" style="margin-bottom:12px;">
+        <button id="btn-kuran-sub-sureler" class="subnav-btn active" onclick="switchKuranSubTab('sureler')">
+          <i class="bi bi-book-half"></i> Sureler & Ses
+        </button>
+        <button id="btn-kuran-sub-virdler" class="subnav-btn" onclick="switchKuranSubTab('virdler')">
+          <i class="bi bi-journal-bookmark-fill"></i> Vird Programı
+        </button>
+        <button id="btn-kuran-sub-esma" class="subnav-btn" onclick="switchKuranSubTab('esma')">
+          <i class="bi bi-gem"></i> Esmâül Hüsnâ
+        </button>
+      </nav>
+
+      <!-- 3A. SESLİ SURELER & DUALAR -->
+      <div id="kuran-sub-sureler" class="kuran-sub-content">
+        <div id="surahs-list-container" class="quran-container">
+          <!-- Sureler dinamik yüklenir -->
+        </div>
+      </div>
+
+      <!-- 3B. GÜNLÜK VİRDLER -->
+      <div id="kuran-sub-virdler" class="kuran-sub-content" style="display:none;">
+        <nav class="subnav-scrollable" aria-label="Vird Kategorileri">
+          <button class="subnav-btn active" onclick="document.querySelectorAll('.subnav-scrollable .subnav-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); renderVirdler('sabah');">Sabah Virdi</button>
+          <button class="subnav-btn" onclick="document.querySelectorAll('.subnav-scrollable .subnav-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); renderVirdler('aksam');">Akşam Virdi</button>
+          <button class="subnav-btn" onclick="document.querySelectorAll('.subnav-scrollable .subnav-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); renderVirdler('haftalik');">Haftalık 7 Gün</button>
+          <button class="subnav-btn" onclick="document.querySelectorAll('.subnav-scrollable .subnav-btn').forEach(b=>b.classList.remove('active')); this.classList.add('active'); renderVirdler('tesbihat');">Namaz Tesbihatı</button>
+        </nav>
+        <div id="vird-cards-list" class="vird-cards-list"></div>
+      </div>
+
+      <!-- 3C. ESMÂÜL HÜSNÂ -->
+      <div id="kuran-sub-esma" class="kuran-sub-content" style="display:none;">
+        <div class="search-filter-box" style="margin:0 16px 12px;">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" class="search-input" placeholder="İsim, anlam veya fazilet ara..." oninput="renderEsmaulHusna(this.value)">
+        </div>
+        <div id="esma-grid" class="esma-grid"></div>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- 4. SEKME: ORTAK ZİKİR & HATİM HALKALARI                            -->
+    <!-- ================================================================= -->
+    <section id="tab-halkalar" class="tab-content" aria-label="Zikir Halkası">
+      <div class="section-title-box" style="margin: 0 16px 12px;">
+        <h3><i class="bi bi-people-fill"></i> Ortak Zikir & Hatim Halkaları</h3>
+      </div>
+      <div id="circles-list-container" class="circles-container">
+        <!-- Halkalar dinamik yüklenir -->
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- 5. SEKME: İSTATİSTİK & AYARLAR & RAPOR (SERHAT SARIBOĞA)           -->
+    <!-- ================================================================= -->
+    <section id="tab-ayarlar" class="tab-content" aria-label="İstatistik ve Ayarlar">
+      
+      <!-- Geliştirici & Hakkında Kartı -->
+      <div class="about-hero-card">
+        <div class="about-avatar">
+          <i class="bi bi-person-workspace"></i>
+        </div>
+        <div class="about-author-name">Serhat Sarıboğa</div>
+        <div class="about-role">Geliştirici & Tasarımcı</div>
+        <p class="about-desc">
+          Zikirmatik, Günlük Virdler, Kıble Pusulası ve Ezan Vakitleri uygulaması manevi huzurunuzu artırmak, zikir ve ibadetlerinizi düzenli takip edebilmeniz amacıyla <strong>Serhat Sarıboğa</strong> tarafından özenle tasarlanıp geliştirilmiştir.
+        </p>
+        <div style="font-size:0.75rem; color: var(--gold-light); font-weight:700;">
+          Sürüm v3.0.0 Ultra Pro Edition
+        </div>
+      </div>
+
+      <!-- İstatistik Özeti -->
+      <div class="section-title-box">
+        <h3><i class="bi bi-bar-chart-line-fill"></i> Zikir İstatistikleri</h3>
+      </div>
+
+      <div class="stats-overview-grid">
+        <div class="stat-box">
+          <div class="stat-icon"><i class="bi bi-check2-circle" style="color:var(--accent-emerald);"></i></div>
+          <div id="stat-total-count" class="stat-num">0</div>
+          <div class="stat-label">Toplam Zikir</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon"><i class="bi bi-arrow-repeat" style="color:var(--gold-primary);"></i></div>
+          <div id="stat-total-tours" class="stat-num">0</div>
+          <div class="stat-label">Tamamlanan Tur</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-icon"><i class="bi bi-clock-history" style="color:#38bdf8;"></i></div>
+          <div id="stat-records-count" class="stat-num">0</div>
+          <div class="stat-label">Kayıt Sayısı</div>
+        </div>
+      </div>
+
+      <!-- İbadet Raporu ve Yazdır -->
+      <div class="settings-card" style="margin-top:14px;">
+        <div class="settings-row">
+          <div>
+            <div class="settings-label"><i class="bi bi-printer-fill" style="color:var(--gold-primary);"></i> İbadet Raporu & Çıktı</div>
+            <div class="settings-sublabel">Zikir ve ibadet karnenizi yazdırın veya PDF kaydedin</div>
+          </div>
+          <button class="btn-primary" onclick="printIbadetReport()"><i class="bi bi-printer"></i> Yazdır / PDF</button>
+        </div>
+      </div>
+
+      <!-- Ezan Makamları Dinleme -->
+      <div class="settings-card">
+        <div class="settings-label"><i class="bi bi-music-note-beamed"></i> 5 Vakit Ezan Makamları</div>
+        <div class="ezan-makam-grid">
+          <button class="ezan-makam-btn" onclick="playEzanMakam('saba')"><span>Sabah: Saba</span> <i class="bi bi-volume-up"></i></button>
+          <button class="ezan-makam-btn" onclick="playEzanMakam('rast')"><span>Öğle: Rast</span> <i class="bi bi-volume-up"></i></button>
+          <button class="ezan-makam-btn" onclick="playEzanMakam('hicaz')"><span>İkindi: Hicaz</span> <i class="bi bi-volume-up"></i></button>
+          <button class="ezan-makam-btn" onclick="playEzanMakam('ussak')"><span>Akşam: Uşşak</span> <i class="bi bi-volume-up"></i></button>
+          <button class="ezan-makam-btn" onclick="playEzanMakam('segah')"><span>Yatsı: Segah</span> <i class="bi bi-volume-up"></i></button>
+        </div>
+      </div>
+
+      <!-- Ayarlar: Temalar & Yedekleme -->
+      <div class="settings-card">
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Uygulama Teması</div>
+            <div class="settings-sublabel">Zümrüt, Gece Mavisi, Kâbe Siyahı, Gül Kurusu</div>
+          </div>
+          <button class="btn-secondary" onclick="document.getElementById('dialog-theme').showModal()">Değiştir</button>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Veri Yedekleme (Export)</div>
+            <div class="settings-sublabel">Zikir ve istatistiklerinizi JSON olarak indirin</div>
+          </div>
+          <button class="btn-primary" onclick="exportBackup()"><i class="bi bi-download"></i> Yedekle</button>
+        </div>
+
+        <div class="settings-row">
+          <div>
+            <div class="settings-label">Yedeği Geri Yükle (Import)</div>
+            <div class="settings-sublabel">Daha önce aldığınız yedeği aktarın</div>
+          </div>
+          <label class="btn-secondary" style="display:inline-flex; align-items:center; cursor:pointer;">
+            <i class="bi bi-upload" style="margin-right:5px;"></i> Yükle
+            <input type="file" accept=".json" onchange="importBackup(event)" style="display:none;">
+          </label>
+        </div>
+      </div>
+
+      <!-- Zikir Geçmişi Listesi -->
+      <div class="section-title-box" style="margin-top: 20px;">
+        <h3><i class="bi bi-clock-history"></i> Zikir Geçmişi</h3>
+      </div>
+      <div id="history-list" class="history-list"></div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- ALT NAVİGASYON (5 ANA BUTON)                                      -->
+    <!-- ================================================================= -->
+    <nav class="bottom-nav" aria-label="Ana Menü">
+      <button id="nav-zikirmatik" class="nav-item active" onclick="switchTab('zikirmatik')">
+        <i class="bi bi-fingerprint"></i>
+        <span>Zikirmatik</span>
+      </button>
+      <button id="nav-ibadet" class="nav-item" onclick="switchTab('ibadet')">
+        <i class="bi bi-compass"></i>
+        <span>İbadet & Kıble</span>
+      </button>
+      <button id="nav-virdler" class="nav-item" onclick="switchTab('virdler')">
+        <i class="bi bi-book-half"></i>
+        <span>Kur'an & Vird</span>
+      </button>
+      <button id="nav-halkalar" class="nav-item" onclick="switchTab('halkalar')">
+        <i class="bi bi-people-fill"></i>
+        <span>Zikir Halkası</span>
+      </button>
+      <button id="nav-ayarlar" class="nav-item" onclick="switchTab('ayarlar')">
+        <i class="bi bi-gear-wide-connected"></i>
+        <span>Ayar & Rapor</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- MODAL VE DİYALOGLAR                                               -->
+  <!-- ================================================================= -->
+
+  <!-- Şehir Seçim Modalı -->
+  <dialog id="dialog-city">
+    <div class="dialog-header">
+      <h3><i class="bi bi-geo-alt-fill"></i> İl ve İlçe Seçiniz (81 İl & İlçeler)</h3>
+      <button class="dialog-close-btn" onclick="document.getElementById('dialog-city').close()">&times;</button>
+    </div>
+    <div style="padding: 10px 14px 4px;">
+      <input type="text" id="city-search-input" placeholder="İl veya ilçe ara (örn: Kadıköy, Çankaya, Adana)..." oninput="filterCitiesList(this.value)" style="width:100%; padding:10px 14px; border-radius:10px; background:rgba(0,0,0,0.4); border:1px solid var(--gold-primary); color:#ffffff; font-size:0.9rem; outline:none; box-sizing:border-box;">
+    </div>
+    <div id="city-select-list" class="dialog-content" style="max-height: 320px; overflow-y: auto;">
+      <!-- Şehirler dinamik listelenir -->
+    </div>
+  </dialog>
+
+  <!-- Hazır Zikir Seçim Modalı -->
+  <dialog id="dialog-preset-zikir">
+    <div class="dialog-header">
+      <h3><i class="bi bi-list-stars"></i> Zikir Seçimi</h3>
+      <button class="dialog-close-btn" onclick="document.getElementById('dialog-preset-zikir').close()">&times;</button>
+    </div>
+    <div id="preset-zikir-modal-list" class="dialog-content" style="max-height: 320px; overflow-y: auto;">
+      <!-- Zikirler listelenir -->
+    </div>
+  </dialog>
+
+  <!-- Tema Seçim Modalı -->
+  <dialog id="dialog-theme">
+    <div class="dialog-header">
+      <h3><i class="bi bi-palette-fill"></i> Tema Seçimi</h3>
+      <button class="dialog-close-btn" onclick="document.getElementById('dialog-theme').close()">&times;</button>
+    </div>
+    <div class="dialog-content" style="display:flex; flex-direction:column; gap:8px;">
+      <button class="preset-zikir-item" style="color: #34d399;" onclick="setTheme('theme-emerald'); document.getElementById('dialog-theme').close();">
+        <strong>🌿 Zümrüt Yeşili & Altın Varak (Emerald Gold)</strong>
+      </button>
+      <button class="preset-zikir-item" style="color: #38bdf8;" onclick="setTheme('theme-midnight'); document.getElementById('dialog-theme').close();">
+        <strong>🌙 Derin Gece Mavisi & Gümüş (Midnight Blue)</strong>
+      </button>
+      <button class="preset-zikir-item" style="color: #fbbf24;" onclick="setTheme('theme-onyx'); document.getElementById('dialog-theme').close();">
+        <strong>🕋 Kâbe Siyahı & İmparatorluk Altını (Onyx Black)</strong>
+      </button>
+      <button class="preset-zikir-item" style="color: #fda4af;" onclick="setTheme('theme-rose'); document.getElementById('dialog-theme').close();">
+        <strong>🌹 Gül Kurusu & Rose Gold (Velvet Rose)</strong>
+      </button>
+    </div>
+  </dialog>
+
+  <!-- Bildirim Kutusu (Toast) -->
+  <div id="app-toast" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--gold-gradient); color:#022c22; font-weight:800; font-size:0.82rem; padding:10px 18px; border-radius:9999px; box-shadow:0 8px 24px rgba(0,0,0,0.6); z-index:999; text-align:center; transition:opacity 0.3s; max-width:90%;"></div>
+
+  <script src="locations.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

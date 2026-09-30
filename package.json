@@ -1,0 +1,23 @@
+{
+  "name": "vakit-zikir-widget",
+  "version": "1.0.0",
+  "description": "Zikirmatik, Günlük Virdler, Namaz Vakitleri ve Ana Ekran Widget'ı",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Ready'",
+    "cap:sync": "npx cap sync",
+    "cap:build": "npx cap build android"
+  },
+  "author": "Serhat Sarıboğa",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/haptics": "^7.0.0",
+    "@capacitor/preferences": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}
