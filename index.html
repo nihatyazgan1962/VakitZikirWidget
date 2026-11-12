@@ -52,10 +52,15 @@
     <!-- NAMAZ VAKİTLERİ & GERİ SAYIM WIDGETI (HER ZAMAN GÖRÜNÜR) -->
     <section class="prayer-hero-widget" aria-label="Namaz Vakitleri">
       <div class="hero-top-row">
-        <div class="location-chip" onclick="openCityModal()">
-          <i class="bi bi-geo-alt-fill"></i>
-          <span id="current-city-label">İstanbul</span>
-          <i class="bi bi-chevron-down" style="font-size:0.65rem;"></i>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <div class="location-chip" onclick="openCityModal()" title="İl / İlçe Değiştir">
+            <i class="bi bi-geo-alt-fill"></i>
+            <span id="current-city-label">İstanbul</span>
+            <i class="bi bi-chevron-down" style="font-size:0.65rem;"></i>
+          </div>
+          <button id="btn-quick-gps" class="quick-gps-btn" onclick="detectUserLocation(true)" title="Konumu Otomatik Tespit Et (GPS)" aria-label="Otomatik Konum">
+            <i class="bi bi-crosshair"></i>
+          </button>
         </div>
         <div class="date-info">
           <div id="hijri-date-label" class="hijri-date">Yükleniyor...</div>
@@ -74,32 +79,42 @@
         </div>
       </div>
 
-      <!-- 6 Vakit Çubuğu -->
+      <!-- 6 Vakit Çubuğu (Her Vakte Özel Ezan & Bildirim Ayarı) -->
       <div class="prayer-times-bar">
-        <div id="prayer-imsak" class="prayer-time-item">
-          <div class="time-label">İmsak</div>
+        <div id="prayer-imsak" class="prayer-time-item" onclick="openPrayerSoundModal('imsak')" title="İmsak Vakti Ezan & Bildirim Ayarı">
+          <div class="time-label">İmsak <i id="sound-icon-imsak" class="bi bi-volume-up-fill prayer-sound-icon"></i></div>
           <div id="time-imsak" class="time-value">--:--</div>
         </div>
-        <div id="prayer-gunes" class="prayer-time-item">
-          <div class="time-label">Güneş</div>
+        <div id="prayer-gunes" class="prayer-time-item" onclick="openPrayerSoundModal('gunes')" title="Güneş Vakti Bildirim Ayarı">
+          <div class="time-label">Güneş <i id="sound-icon-gunes" class="bi bi-bell-fill prayer-sound-icon"></i></div>
           <div id="time-gunes" class="time-value">--:--</div>
         </div>
-        <div id="prayer-ogle" class="prayer-time-item">
-          <div class="time-label">Öğle</div>
+        <div id="prayer-ogle" class="prayer-time-item" onclick="openPrayerSoundModal('ogle')" title="Öğle Vakti Ezan & Bildirim Ayarı">
+          <div class="time-label">Öğle <i id="sound-icon-ogle" class="bi bi-volume-up-fill prayer-sound-icon"></i></div>
           <div id="time-ogle" class="time-value">--:--</div>
         </div>
-        <div id="prayer-ikindi" class="prayer-time-item">
-          <div class="time-label">İkindi</div>
+        <div id="prayer-ikindi" class="prayer-time-item" onclick="openPrayerSoundModal('ikindi')" title="İkindi Vakti Ezan & Bildirim Ayarı">
+          <div class="time-label">İkindi <i id="sound-icon-ikindi" class="bi bi-volume-up-fill prayer-sound-icon"></i></div>
           <div id="time-ikindi" class="time-value">--:--</div>
         </div>
-        <div id="prayer-aksam" class="prayer-time-item">
-          <div class="time-label">Akşam</div>
+        <div id="prayer-aksam" class="prayer-time-item" onclick="openPrayerSoundModal('aksam')" title="Akşam Vakti Ezan & Bildirim Ayarı">
+          <div class="time-label">Akşam <i id="sound-icon-aksam" class="bi bi-volume-up-fill prayer-sound-icon"></i></div>
           <div id="time-aksam" class="time-value">--:--</div>
         </div>
-        <div id="prayer-yatsi" class="prayer-time-item">
-          <div class="time-label">Yatsı</div>
+        <div id="prayer-yatsi" class="prayer-time-item" onclick="openPrayerSoundModal('yatsi')" title="Yatsı Vakti Ezan & Bildirim Ayarı">
+          <div class="time-label">Yatsı <i id="sound-icon-yatsi" class="bi bi-volume-up-fill prayer-sound-icon"></i></div>
           <div id="time-yatsi" class="time-value">--:--</div>
         </div>
+      </div>
+
+      <!-- Gerçek Ezan Dinle & Vakit Ses Ayarları Çubuğu -->
+      <div class="ezan-quick-bar">
+        <button class="ezan-play-pill-btn" onclick="openPrayerSoundModal()" title="Her Vakte Özel Ezan & Bildirim Sesi Ayarla">
+          <i class="bi bi-sliders2" style="color:var(--gold-primary);"></i> Vakit Ezan & Bildirim Ayarları
+        </button>
+        <button id="btn-quick-play-ezan" class="ezan-icon-quick-btn" onclick="toggleCurrentEzanAudio()" title="Ezanı Oynat / Durdur" aria-label="Ezan Oynat">
+          <i class="bi bi-play-circle-fill"></i>
+        </button>
       </div>
     </section>
 
@@ -225,44 +240,162 @@
         </button>
       </nav>
 
-      <!-- 2A. KIBLE PUSULASI -->
+      <!-- 2A. KIBLE PUSULASI (FOTOĞRAFTAKİ ÖZEL TASARIM: SECCADE & MEKKE) -->
       <div id="ibadet-sub-kible" class="ibadet-sub-content">
-        <div class="qibla-card-container">
+        <div class="qibla-card-container screenshot-style">
+          <!-- Üst Başlık ve Konum Kapsülü (Ekran Görüntüsündeki gibi) -->
+          <div class="qibla-screenshot-header">
+            <h1 class="qibla-screenshot-title">Kıble</h1>
+            <div id="qibla-location-pill" class="qibla-screenshot-location-pill" onclick="detectUserLocation(true)" title="Konumu Yenilemek İçin Dokunun">
+              <span id="qibla-location-pill-text">Esenler, Istanbul, Türkiye</span>
+            </div>
+          </div>
+
+          <!-- Durum ve Yönlendirme Bildirimi -->
           <div id="qibla-status-banner" class="qibla-aligned-status not-aligned">
             <i class="bi bi-compass"></i> Pusula Hazırlanıyor...
           </div>
 
-          <div class="compass-wrapper">
-            <div id="compass-dial" class="compass-dial">
-              <svg width="240" height="240" viewBox="0 0 240 240">
-                <circle cx="120" cy="120" r="105" fill="none" stroke="rgba(234,179,8,0.3)" stroke-width="2" stroke-dasharray="4 6"/>
-                <text x="120" y="32" fill="#ef4444" font-weight="900" font-size="16" text-anchor="middle">K</text>
-                <text x="212" y="125" fill="#fef08a" font-weight="800" font-size="14" text-anchor="middle">D</text>
-                <text x="120" y="218" fill="#fef08a" font-weight="800" font-size="14" text-anchor="middle">G</text>
-                <text x="28" y="125" fill="#fef08a" font-weight="800" font-size="14" text-anchor="middle">B</text>
-              </svg>
+          <!-- Pusula Dairesi & İbreler -->
+          <div class="compass-container-outer">
+            <div id="compass-wrapper" class="compass-wrapper screenshot-compass">
+              <!-- 1. Dış Kadran Dairesi ve Çentikler (Görseldeki gibi açık renk halka ve noktalar) -->
+              <div id="compass-dial" class="compass-dial">
+                <svg width="290" height="290" viewBox="0 0 290 290">
+                  <!-- Ana İnce Daire -->
+                  <circle cx="145" cy="145" r="126" fill="none" stroke="rgba(140, 220, 235, 0.4)" stroke-width="2"/>
+                  <!-- 45° ve 90° Çentikleri -->
+                  <line x1="145" y1="19" x2="145" y2="28" stroke="rgba(30, 41, 59, 0.65)" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="271" y1="145" x2="262" y2="145" stroke="rgba(30, 41, 59, 0.65)" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="145" y1="271" x2="145" y2="262" stroke="rgba(30, 41, 59, 0.65)" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="19" y1="145" x2="28" y2="145" stroke="rgba(30, 41, 59, 0.65)" stroke-width="2.5" stroke-linecap="round"/>
+                  <!-- Ara Çentikler -->
+                  <line x1="56" y1="56" x2="63" y2="63" stroke="rgba(30, 41, 59, 0.5)" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="234" y1="56" x2="227" y2="63" stroke="rgba(30, 41, 59, 0.5)" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="56" y1="234" x2="63" y2="227" stroke="rgba(30, 41, 59, 0.5)" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="234" y1="234" x2="227" y2="227" stroke="rgba(30, 41, 59, 0.5)" stroke-width="2" stroke-linecap="round"/>
+                  <!-- Kadran Noktaları (Görseldeki koyu gri nokta) -->
+                  <circle cx="205" cy="67" r="3.5" fill="#1e293b" opacity="0.7"/>
+                  <circle cx="85" cy="223" r="3.5" fill="#1e293b" opacity="0.7"/>
+                </svg>
+              </div>
+
+              <!-- 2. ÜSTTE (12 Hizası) SABİT SECCADE KARTI (Beyaz yumuşak köşeli kart içindeki Seccade) -->
+              <div class="compass-fixed-seccade-container" title="Cihazın Baktığı Yön / Seccade">
+                <div id="compass-seccade-card" class="compass-seccade-card">
+                  <svg width="34" height="46" viewBox="0 0 34 46" class="seccade-svg">
+                    <defs>
+                      <linearGradient id="secCardGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#15803d"/>
+                        <stop offset="60%" stop-color="#166534"/>
+                        <stop offset="100%" stop-color="#14532d"/>
+                      </linearGradient>
+                      <linearGradient id="secCardGold" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#d97706"/>
+                        <stop offset="50%" stop-color="#fef08a"/>
+                        <stop offset="100%" stop-color="#ca8a04"/>
+                      </linearGradient>
+                    </defs>
+                    <!-- Üst Saçaklar -->
+                    <line x1="4" y1="2" x2="30" y2="2" stroke="#eab308" stroke-width="1.5" stroke-dasharray="1.5,1.5"/>
+                    <line x1="4" y1="44" x2="30" y2="44" stroke="#eab308" stroke-width="1.5" stroke-dasharray="1.5,1.5"/>
+                    <!-- Dış Altın Bordür -->
+                    <rect x="3" y="3" width="28" height="40" rx="3.5" fill="url(#secCardGold)" stroke="#92400e" stroke-width="0.6"/>
+                    <!-- İç Zemin Halı -->
+                    <rect x="5.5" y="5.5" width="23" height="35" rx="2" fill="url(#secCardGreen)"/>
+                    <!-- Mihrap Kemeri -->
+                    <path d="M 8.5 26 L 8.5 14 Q 8.5 7 17 6 Q 25.5 7 25.5 14 L 25.5 26 Z" fill="rgba(250, 204, 21, 0.25)" stroke="#facc15" stroke-width="1.2"/>
+                    <!-- Kandil Lambası -->
+                    <line x1="17" y1="6" x2="17" y2="12" stroke="#fef08a" stroke-width="0.8"/>
+                    <ellipse cx="17" cy="13" rx="1.6" ry="2" fill="#facc15"/>
+                    <circle cx="17" cy="13" r="0.6" fill="#ffffff"/>
+                    <!-- Alt Geometrik Yıldız Deseni -->
+                    <circle cx="17" cy="32" r="2.5" fill="none" stroke="#facc15" stroke-width="0.8"/>
+                    <circle cx="17" cy="32" r="1" fill="#facc15"/>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- 3. KIBLEYE DÖNEN IŞIN & MEKKE KARTI (Merkezden Kıble açısına döner) -->
+              <div id="compass-qibla-rotator" class="compass-qibla-rotator">
+                <!-- Merkezden Kâbe'ye uzanan Açık Mavi / Cyan Çizgi -->
+                <div id="qibla-pointer-beam" class="qibla-pointer-beam"></div>
+                
+                <!-- Dönen Mekke / Kâbe Kartı (Görseldeki açık sarı-bej yarı saydam kart) -->
+                <div id="mekke-target-card" class="mekke-target-card" title="Kâbe-i Muazzama / Mekke">
+                  <div id="mekke-inner-content" class="mekke-inner-content">
+                    <div class="kaaba-icon-mini">
+                      <svg width="32" height="32" viewBox="0 0 54 54">
+                        <defs>
+                          <linearGradient id="kaabaBlack3D" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#27272a"/>
+                            <stop offset="60%" stop-color="#09090b"/>
+                            <stop offset="100%" stop-color="#000000"/>
+                          </linearGradient>
+                          <linearGradient id="kaabaGoldHizam" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#ca8a04"/>
+                            <stop offset="50%" stop-color="#fef08a"/>
+                            <stop offset="100%" stop-color="#eab308"/>
+                          </linearGradient>
+                        </defs>
+                        <!-- 3D İzometrik Kâbe -->
+                        <polygon points="27,6 47,15 27,24 7,15" fill="#3f3f46" stroke="#facc15" stroke-width="0.8"/>
+                        <polygon points="7,15 27,24 27,47 7,37" fill="url(#kaabaBlack3D)" stroke="#facc15" stroke-width="0.8"/>
+                        <polygon points="27,24 47,15 47,37 27,47" fill="#18181b" stroke="#facc15" stroke-width="0.8"/>
+                        <!-- Altın Kuşak (Hizam) -->
+                        <polygon points="7,20 27,29 27,33 7,24" fill="url(#kaabaGoldHizam)"/>
+                        <polygon points="27,29 47,20 47,24 27,33" fill="url(#kaabaGoldHizam)"/>
+                        <!-- Altın Kapı (Bab-ı Kâbe) -->
+                        <polygon points="12,28 19,31 19,43 12,39" fill="url(#kaabaGoldHizam)" stroke="#713f12" stroke-width="0.5"/>
+                      </svg>
+                    </div>
+                    <span class="mekke-text-label">Mekke</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. Merkez Mavi/Cyan Pivot Noktası (Görseldeki canlı mavi nokta) -->
+              <div class="compass-cyan-pivot"></div>
             </div>
-            <div id="compass-needle-kaaba" class="compass-needle-kaaba">
-              <div class="kaaba-icon-pin" title="Kâbe-i Muazzama"><i class="bi bi-building"></i></div>
-              <div style="width:4px; height:70px; background:var(--gold-gradient); border-radius:4px;"></div>
-            </div>
-            <div class="compass-center-pivot"></div>
           </div>
 
+          <!-- Açı ve Mesafe Bilgileri -->
           <div class="qibla-info-grid">
             <div class="qibla-info-box">
               <div id="qibla-heading-deg" class="qibla-info-num">0°</div>
-              <div class="qibla-info-label">Cihaz Açısı</div>
+              <div class="qibla-info-label">Cihaz Yönü</div>
             </div>
             <div class="qibla-info-box">
               <div id="qibla-target-deg" class="qibla-info-num">--°</div>
-              <div class="qibla-info-label">Kâbe İstikameti</div>
+              <div class="qibla-info-label">Kâbe Açısı</div>
+            </div>
+            <div class="qibla-info-box">
+              <div id="qibla-distance-km" class="qibla-info-num">-- km</div>
+              <div class="qibla-info-label">Kâbe Mesafesi</div>
             </div>
           </div>
 
+          <!-- Hızlı İşlem Butonları -->
+          <div class="qibla-aux-actions">
+            <button id="btn-toggle-qibla-voice" class="btn-secondary" style="flex:1;" onclick="toggleQiblaVoice()" title="Kıble Bulununca Sesli 'Kıbleye Yönlendirildiniz' Uyarısı">
+              <i class="bi bi-volume-up-fill" style="color:var(--gold-primary);"></i> <span id="qibla-voice-text">Sesli Kıble: Açık</span>
+            </button>
+            <button class="btn-secondary" style="flex:1;" onclick="detectUserLocation(true)" title="Konumu GPS ile Güncelle">
+              <i class="bi bi-crosshair"></i> Otomatik Konum
+            </button>
+            <button id="btn-request-compass" class="btn-secondary" style="flex:1;" onclick="requestCompassPermission()" title="Sensörü Etkinleştir">
+              <i class="bi bi-compass"></i> Sensör
+            </button>
+          </div>
+
+          <!-- Manuel İnce Ayar / Test Butonları -->
           <div style="display:flex; gap:8px; width:100%;">
-            <button class="btn-secondary" style="flex:1;" onclick="manualRotateCompass(-15)"><i class="bi bi-arrow-counterclockwise"></i> -15° Döndür</button>
-            <button class="btn-secondary" style="flex:1;" onclick="manualRotateCompass(15)"><i class="bi bi-arrow-clockwise"></i> +15° Döndür</button>
+            <button class="btn-secondary" style="flex:1; font-size:0.75rem; padding:6px;" onclick="manualRotateCompass(-10)"><i class="bi bi-arrow-counterclockwise"></i> -10° Döndür</button>
+            <button class="btn-secondary" style="flex:1; font-size:0.75rem; padding:6px;" onclick="manualRotateCompass(10)"><i class="bi bi-arrow-clockwise"></i> +10° Döndür</button>
+          </div>
+
+          <div style="font-size:0.72rem; color:var(--text-muted); text-align:center; line-height:1.4;">
+            <i class="bi bi-info-circle"></i> Doğru kıble için telefonunuzu yere paralel (düz) tutunuz. Seccade Kâbe'ye tam hizalandığında yeşil ışık yanar ve titreşim verir.
           </div>
         </div>
       </div>
@@ -496,6 +629,9 @@
       <button class="dialog-close-btn" onclick="document.getElementById('dialog-city').close()">&times;</button>
     </div>
     <div style="padding: 10px 14px 4px;">
+      <button id="btn-modal-auto-gps" class="auto-gps-btn" onclick="detectUserLocation(true)">
+        <i class="bi bi-crosshair2"></i> Mevcut Konumumu Kullan (Otomatik GPS)
+      </button>
       <input type="text" id="city-search-input" placeholder="İl veya ilçe ara (örn: Kadıköy, Çankaya, Adana)..." oninput="filterCitiesList(this.value)" style="width:100%; padding:10px 14px; border-radius:10px; background:rgba(0,0,0,0.4); border:1px solid var(--gold-primary); color:#ffffff; font-size:0.9rem; outline:none; box-sizing:border-box;">
     </div>
     <div id="city-select-list" class="dialog-content" style="max-height: 320px; overflow-y: auto;">
@@ -533,6 +669,231 @@
       <button class="preset-zikir-item" style="color: #fda4af;" onclick="setTheme('theme-rose'); document.getElementById('dialog-theme').close();">
         <strong>🌹 Gül Kurusu & Rose Gold (Velvet Rose)</strong>
       </button>
+    </div>
+  </dialog>
+
+  <!-- Her Vakte Özel Ezan & Bildirim Sesleri Modalı -->
+  <dialog id="dialog-ezan-settings" class="prayer-sound-modal">
+    <div class="dialog-header">
+      <h3><i class="bi bi-bell-fill" style="color:var(--gold-primary);"></i> Vakit Ezanları & Bildirim Sesleri</h3>
+      <button class="dialog-close-btn" onclick="document.getElementById('dialog-ezan-settings').close()">&times;</button>
+    </div>
+
+    <!-- Sekmeler: Vakitlere Özel / Ezan Kütüphanesi -->
+    <div class="sound-modal-tabs">
+      <button id="tab-btn-sound-prayers" class="sound-modal-tab-btn active" onclick="switchSoundModalTab('prayers')">
+        <i class="bi bi-sliders2"></i> Vakitlere Özel Ayarlar
+      </button>
+      <button id="tab-btn-sound-library" class="sound-modal-tab-btn" onclick="switchSoundModalTab('library')">
+        <i class="bi bi-collection-play-fill"></i> Ezan İndir & Kütüphane
+      </button>
+    </div>
+
+    <div class="dialog-content" style="padding:14px; max-height:460px; overflow-y:auto;">
+      
+      <!-- 1. BÖLÜM: VAKİTLERE ÖZEL AYARLAR -->
+      <div id="sound-sec-prayers" class="sound-modal-section">
+        <!-- 6 Vakit Seçici Hap Butonlar -->
+        <div class="prayer-sound-selector-row">
+          <button class="prayer-select-pill active" data-prayer="imsak" onclick="selectPrayerSoundConfig('imsak')">Sabah</button>
+          <button class="prayer-select-pill" data-prayer="gunes" onclick="selectPrayerSoundConfig('gunes')">Güneş</button>
+          <button class="prayer-select-pill" data-prayer="ogle" onclick="selectPrayerSoundConfig('ogle')">Öğle</button>
+          <button class="prayer-select-pill" data-prayer="ikindi" onclick="selectPrayerSoundConfig('ikindi')">İkindi</button>
+          <button class="prayer-select-pill" data-prayer="aksam" onclick="selectPrayerSoundConfig('aksam')">Akşam</button>
+          <button class="prayer-select-pill" data-prayer="yatsi" onclick="selectPrayerSoundConfig('yatsi')">Yatsı</button>
+        </div>
+
+        <!-- Aktif Vakit Konfigürasyon Kartı -->
+        <div class="prayer-config-card">
+          <div class="prayer-config-header">
+            <div>
+              <h4 id="conf-prayer-title" style="font-weight:900; color:var(--text-primary); font-size:1rem;">Öğle Vakti</h4>
+              <div id="conf-prayer-time" style="font-size:0.75rem; color:var(--gold-light); font-weight:700;">Vakit Saati: 13:08</div>
+            </div>
+            <span id="conf-prayer-badge" class="conf-mode-badge mode-ezan">Tam Ezan</span>
+          </div>
+
+          <!-- Bildirim & Ses Modu Butonları -->
+          <div style="font-size:0.76rem; font-weight:700; color:var(--text-muted); margin:12px 0 6px;">VAKİT GİRDİĞİNDE UYARI TÜRÜ:</div>
+          <div class="sound-mode-grid">
+            <button class="sound-mode-btn" data-mode="ezan" onclick="setPrayerSoundMode('ezan')">
+              <i class="bi bi-volume-up-fill"></i>
+              <span>Tam Ezan</span>
+            </button>
+            <button class="sound-mode-btn" data-mode="tone" onclick="setPrayerSoundMode('tone')">
+              <i class="bi bi-bell-fill"></i>
+              <span>Kısa Ses</span>
+            </button>
+            <button class="sound-mode-btn" data-mode="vibrate" onclick="setPrayerSoundMode('vibrate')">
+              <i class="bi bi-phone-vibrate-fill"></i>
+              <span>Titreşim</span>
+            </button>
+            <button class="sound-mode-btn" data-mode="off" onclick="setPrayerSoundMode('off')">
+              <i class="bi bi-bell-slash-fill"></i>
+              <span>Kapalı</span>
+            </button>
+          </div>
+
+          <!-- A. Ezan Sesi Seçici (Tam Ezan Seçiliyse Görünür) -->
+          <div id="conf-ezan-group" class="conf-sub-group" style="margin-top:14px;">
+            <label class="conf-field-label"><i class="bi bi-music-note-beamed"></i> Bu Vakit İçin Okunacak Ezan:</label>
+            <select id="select-prayer-ezan" class="conf-dropdown" onchange="changePrayerEzanSound(this.value)">
+              <option value="saba">🕌 Saba Makamı Ezanı (Sabah Seheri)</option>
+              <option value="rast">🕌 Rast Makamı Ezanı (Öğle Vakti)</option>
+              <option value="hicaz">🕌 Hicaz Makamı Ezanı (İkindi Vakti)</option>
+              <option value="segah">🕌 Segah Makamı Ezanı (Akşam Vakti)</option>
+              <option value="ussak">🕌 Uşşak Makamı Ezanı (Yatsı Vakti)</option>
+              <option value="mekke">🕌 Mekke-i Mükerreme Ezanı (Mescid-i Haram)</option>
+              <option value="medine">🕌 Medine-i Münevvere Ezanı (Mescid-i Nebevi)</option>
+              <option value="default">🕌 Klasik Türk & Hicaz Ezanı</option>
+              <option value="custom">📁 Bu Vakte Özel Seçilen Ses Dosyası</option>
+            </select>
+          </div>
+
+          <!-- B. Kısa Bildirim Sesi Seçici (Kısa Ses Seçiliyse Görünür) -->
+          <div id="conf-tone-group" class="conf-sub-group" style="margin-top:14px; display:none;">
+            <label class="conf-field-label"><i class="bi bi-bell"></i> Kısa Bildirim Tonu:</label>
+            <select id="select-prayer-tone" class="conf-dropdown" onchange="changePrayerNotificationTone(this.value)">
+              <option value="tekbir">🕌 Tekbir Makamı ("Allahu Ekber")</option>
+              <option value="chime">🔔 Huzurlu Manevi Çan & Çınlama</option>
+              <option value="ney">🌿 Dinlendirici Ney Nağmesi</option>
+              <option value="bird">🐦 Sabah Seher Kuş & Doğa Sesi</option>
+              <option value="beep">⏱️ Modern Kısa Bildirim Bipi</option>
+            </select>
+          </div>
+
+          <!-- C. Bu Vakte Özel Dosyadan MP3 / Ses Seç -->
+          <div class="custom-prayer-file-box" style="margin-top:14px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:0.75rem; font-weight:700; color:var(--text-secondary);">
+                <i class="bi bi-folder2-open"></i> Bu Vakte Özel Kendi Dosyanı Ata:
+              </span>
+              <label for="input-custom-prayer-audio" class="btn-file-mini">
+                <i class="bi bi-upload"></i> Dosya Seç (.mp3 / ses)
+              </label>
+              <input type="file" id="input-custom-prayer-audio" accept="audio/*" onchange="handlePrayerCustomAudioUpload(event)" style="display:none;">
+            </div>
+            <div id="prayer-custom-file-info" style="display:none; font-size:0.75rem; color:#34d399; margin-top:6px; align-items:center; gap:6px;">
+              <i class="bi bi-check-circle-fill"></i> <span id="prayer-custom-filename"></span>
+            </div>
+          </div>
+
+          <!-- Ön Dinleme & Eylemler -->
+          <div class="conf-actions-row" style="margin-top:16px;">
+            <button id="btn-test-prayer-sound" class="btn-primary" style="flex:1;" onclick="testActivePrayerSound()">
+              <i class="bi bi-play-circle-fill"></i> Sesi Dinle (Test)
+            </button>
+            <button class="btn-secondary" style="font-size:0.75rem;" onclick="copySettingsToAllPrayers()" title="Bu ayarı diğer tüm vakitlere de kopyala">
+              <i class="bi bi-copy"></i> Tüm Vakitlere Uygula
+            </button>
+          </div>
+        </div>
+
+        <!-- Bildirim İzni Uyarısı (Gerekiyorsa) -->
+        <div id="notification-perm-box" class="notification-perm-banner" style="margin-top:12px; display:none;">
+          <div><i class="bi bi-info-circle-fill"></i> Vakit girdiğinde arka planda bildirim almak için izin veriniz.</div>
+          <button class="btn-primary" style="font-size:0.72rem; padding:4px 8px;" onclick="requestSystemNotificationPermission()">İzin Ver</button>
+        </div>
+      </div>
+
+      <!-- 2. BÖLÜM: EZAN İNDİR & GENEL KÜTÜPHANE -->
+      <div id="sound-sec-library" class="sound-modal-section" style="display:none;">
+        <div style="font-size:0.78rem; font-weight:800; color:var(--text-secondary); margin-bottom:10px; text-transform:uppercase;">
+          Gerçek Ezan Kayıtları & Cihaza İndirme
+        </div>
+
+        <div class="ezan-list">
+          <!-- Mekke Ezanı -->
+          <div class="ezan-item-card" id="ezan-card-mekke">
+            <div class="ezan-item-info">
+              <div class="ezan-item-title">🕌 Mekke-i Mükerreme Ezanı</div>
+              <div class="ezan-item-desc">Mescid-i Haram (Kâbe) Müezzini - Gerçek Orijinal Kayıt</div>
+            </div>
+            <div class="ezan-item-actions">
+              <button class="ezan-btn-play" onclick="playEzanPreview('mekke')"><i class="bi bi-play-fill"></i> Dinle</button>
+              <a href="ezan_mekke.ogg" download="Mekke_Ezani.ogg" class="ezan-btn-download" title="Cihaza İndir"><i class="bi bi-download"></i> İndir</a>
+            </div>
+          </div>
+
+          <!-- Klasik Türk Ezanı -->
+          <div class="ezan-item-card" id="ezan-card-default">
+            <div class="ezan-item-info">
+              <div class="ezan-item-title">🕌 Klasik Türk & Hicaz Ezanı</div>
+              <div class="ezan-item-desc">Huşû Veren Geleneksel Ezan-ı Muhammedi</div>
+            </div>
+            <div class="ezan-item-actions">
+              <button class="ezan-btn-play" onclick="playEzanPreview('default')"><i class="bi bi-play-fill"></i> Dinle</button>
+              <a href="ezan_default.mp3" download="Klasik_Turk_Ezani.mp3" class="ezan-btn-download" title="Cihaza İndir"><i class="bi bi-download"></i> İndir</a>
+            </div>
+          </div>
+
+          <!-- Medine Ezanı -->
+          <div class="ezan-item-card" id="ezan-card-medine">
+            <div class="ezan-item-info">
+              <div class="ezan-item-title">🕌 Medine-i Münevvere Ezanı</div>
+              <div class="ezan-item-desc">Mescid-i Nebevi Müezzini - Çevrimiçi Kayıt</div>
+            </div>
+            <div class="ezan-item-actions">
+              <button class="ezan-btn-play" onclick="playEzanPreview('medine')"><i class="bi bi-play-fill"></i> Dinle</button>
+              <a href="https://upload.wikimedia.org/wikipedia/commons/8/86/Azan.ogg" download="Medine_Ezani.ogg" class="ezan-btn-download" target="_blank" title="Cihaza İndir"><i class="bi bi-download"></i> İndir</a>
+            </div>
+          </div>
+
+          <!-- 5 Vakit Makam Ezanları -->
+          <div class="ezan-item-card">
+            <div class="ezan-item-info">
+              <div class="ezan-item-title">🎵 5 Vakit Makam Ezanları</div>
+              <div class="ezan-item-desc">Sabah (Saba), Öğle (Rast), İkindi (Hicaz), Akşam (Segah), Yatsı (Uşşak)</div>
+            </div>
+            <div class="ezan-item-actions" style="flex-wrap:wrap;">
+              <button class="ezan-makam-chip-btn" onclick="playEzanMakam('saba')">Sabah</button>
+              <button class="ezan-makam-chip-btn" onclick="playEzanMakam('rast')">Öğle</button>
+              <button class="ezan-makam-chip-btn" onclick="playEzanMakam('hicaz')">İkindi</button>
+              <button class="ezan-makam-chip-btn" onclick="playEzanMakam('segah')">Akşam</button>
+              <button class="ezan-makam-chip-btn" onclick="playEzanMakam('ussak')">Yatsı</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Şu An Çalan Kontrol Çubuğu -->
+      <div id="ezan-player-bar" class="ezan-player-bar" style="display:none; margin-top:14px;">
+        <div style="font-size:0.75rem; font-weight:700; color:var(--gold-light);" id="ezan-playing-title">Ezan Çalınıyor...</div>
+        <button class="btn-stop-ezan" onclick="stopCurrentEzanAudio()"><i class="bi bi-stop-fill"></i> Durdur</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- VAKİT GİRDİĞİNDE AÇILAN CANLI BİLDİRİM & EZAN EKRANI -->
+  <dialog id="dialog-prayer-alert" class="prayer-alert-dialog">
+    <div class="prayer-alert-box">
+      <div class="prayer-alert-glow-icon">
+        <i class="bi bi-bell-fill"></i>
+      </div>
+      <h3 id="alert-prayer-title" class="alert-title">Öğle Vakti Girdi!</h3>
+      <div id="alert-prayer-time" class="alert-time">13:08</div>
+      <div class="alert-message">"Haydin namaza, haydin kurtuluşa!"</div>
+      <div id="alert-sound-playing" class="alert-sound-info">▶ Rast Makamı Ezanı Çalınıyor...</div>
+
+      <div class="alert-actions">
+        <button class="btn-primary" style="flex:1; padding:12px;" onclick="stopPrayerAlert()">
+          <i class="bi bi-stop-circle-fill"></i> Ezanı Durdur
+        </button>
+        <button class="btn-secondary" style="flex:1; padding:12px;" onclick="closePrayerAlert()">
+          <i class="bi bi-check2"></i> Kapat
+        </button>
+      </div>
+
+      <!-- Ezan Duası Açılır Butonu -->
+      <div style="margin-top:12px;">
+        <button class="btn-secondary" style="width:100%; font-size:0.78rem;" onclick="toggleEzanDuaText()">
+          <i class="bi bi-book-half"></i> Ezan Duasını Oku
+        </button>
+        <div id="ezan-dua-text-box" class="ezan-dua-box" style="display:none;">
+          <div class="ezan-dua-arabic">اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ</div>
+          <div class="ezan-dua-turkish">"Ey bu eksiksiz davetin ve kılınacak namazın Rabbi olan Allah’ım! Efendimiz Hz. Muhammed’e (s.a.v) vesileyi ve fazileti ver. Onu vadettiğin Makam-ı Mahmud’a ulaştır." (Buhârî, Ezân 8)</div>
+        </div>
+      </div>
     </div>
   </dialog>
 

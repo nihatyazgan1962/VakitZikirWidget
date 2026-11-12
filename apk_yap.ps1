@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Stop"
 
 Write-Host "=========================================" -ForegroundColor Yellow
 Write-Host "   VAKIT ZIKIR WIDGET APK OLUSTURUCU BASLADI   " -ForegroundColor Yellow
@@ -15,7 +15,7 @@ if (-not (Test-Path $wwwDir)) {
     New-Item -ItemType Directory -Path $wwwDir -Force | Out-Null
 }
 
-$filesToCopy = @("index.html", "app.js", "style.css", "favicon.png")
+$filesToCopy = @("index.html", "app.js", "styles.css", "style.css", "locations.js", "locations_data.json", "manifest.json", "favicon.png", "ezan_default.mp3", "ezan_mekke.ogg")
 foreach ($file in $filesToCopy) {
     $src = Join-Path $rootDir $file
     if (Test-Path $src) {
@@ -45,7 +45,8 @@ $sdkDirEscaped = $androidSdkPath -replace '\\', '\\'
 # 3. Capacitor Senkronizasyonu
 Write-Host "[3/4] Capacitor Android projesi senkronize ediliyor..." -ForegroundColor Cyan
 Set-Location $rootDir
-npx cap sync android
+$capCli = Join-Path $rootDir "node_modules\@capacitor\cli\bin\capacitor"
+node "$capCli" sync android
 
 # 4. APK Derleme
 Write-Host "[4/4] APK derlemesi basliyor (assembleDebug)..." -ForegroundColor Cyan

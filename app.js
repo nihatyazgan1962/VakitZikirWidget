@@ -246,6 +246,57 @@ const ESMAUL_HUSNA = [
   { no: 39, name: "El-Hafîz", arabic: "الحَفِيظ", meaning: "Her şeyi koruyan, saklayan ve muhafaza eden.", ebced: 998, virtue: "Her türlü bela, afet, kaza ve nazardan korunmak için." }
 ];
 
+const DEFAULT_PRAYER_ALERTS = {
+  imsak: {
+    name: 'İmsak / Sabah',
+    soundMode: 'ezan', // 'ezan', 'tone', 'vibrate', 'off'
+    ezanKey: 'saba',
+    notificationTone: 'tekbir',
+    customEzanData: null,
+    customEzanName: ''
+  },
+  gunes: {
+    name: 'Güneş',
+    soundMode: 'tone',
+    ezanKey: 'default',
+    notificationTone: 'bird',
+    customEzanData: null,
+    customEzanName: ''
+  },
+  ogle: {
+    name: 'Öğle',
+    soundMode: 'ezan',
+    ezanKey: 'rast',
+    notificationTone: 'chime',
+    customEzanData: null,
+    customEzanName: ''
+  },
+  ikindi: {
+    name: 'İkindi',
+    soundMode: 'ezan',
+    ezanKey: 'hicaz',
+    notificationTone: 'tekbir',
+    customEzanData: null,
+    customEzanName: ''
+  },
+  aksam: {
+    name: 'Akşam',
+    soundMode: 'ezan',
+    ezanKey: 'segah',
+    notificationTone: 'ney',
+    customEzanData: null,
+    customEzanName: ''
+  },
+  yatsi: {
+    name: 'Yatsı',
+    soundMode: 'ezan',
+    ezanKey: 'ussak',
+    notificationTone: 'chime',
+    customEzanData: null,
+    customEzanName: ''
+  }
+};
+
 // --- 2. UYGULAMA DURUMU (APP STATE) ---
 let state = {
   counter: 0,
@@ -276,7 +327,16 @@ let state = {
   isVoiceListening: false,
   compassHeading: 0,
   qiblaBearing: 0,
-  isQiblaAligned: false
+  isQiblaAligned: false,
+  qiblaVoiceEnabled: true,
+  defaultEzan: 'mekke',
+  customEzanName: '',
+  customEzanData: null,
+  activeEzanAudio: null,
+  activePrayerConfigKey: 'ogle',
+  prayerAlerts: JSON.parse(JSON.stringify(DEFAULT_PRAYER_ALERTS)),
+  lastTriggeredPrayer: null,
+  activeAlertAudio: null
 };
 
 // --- 3. BAŞLANGIÇ & INITIALIZATION ---
@@ -295,8 +355,16 @@ document.addEventListener('DOMContentLoaded', () => {
   updateStats();
   initPrayerTimes();
   initQiblaCompass();
+  updateQiblaVoiceUI();
+  updateEzanUI();
   initVoiceRecognition();
   initBeadSwipe();
+  checkNotificationPermissionNotice();
+
+  // Otomatik Konum Tespiti (GPS)
+  if (!state.currentCity || state.currentCity.isAutoGPS || !localStorage.getItem('vakit_zikir_pro_state')) {
+    setTimeout(() => { detectUserLocation(false); }, 500);
+  }
 });
 
 // --- 4. ZİKİRMATİK MODLARI VE SAYAÇ MOTORU ---
@@ -560,77 +628,392 @@ function shareDailySpiritual() {
   }
 }
 
-// --- 8. KIBLE PUSULASI (QIBLA COMPASS) ---
+// --- 8. KIBLE PUSULASI & OTOMATİK KONUM (QIBLA COMPASS WITH SECCADE & KÂBE) ---
+let compassState = {
+  hasAbsoluteListener: false,
+  isListening: false,
+  rawHeading: 0,
+  smoothedHeading: 0
+};
+
 function initQiblaCompass() {
   calculateQiblaBearing();
+  startCompassListening();
+}
 
+function startCompassListening() {
+  if (compassState.isListening) return;
+
+  const onOrientationAbsolute = (e) => {
+    compassState.hasAbsoluteListener = true;
+    processOrientationEvent(e, true);
+  };
+
+  const onOrientationStandard = (e) => {
+    // Mutlak yönelim dinleniyorsa göreceli yönelim ezmesin
+    if (compassState.hasAbsoluteListener) return;
+    processOrientationEvent(e, false);
+  };
+
+  if ('ondeviceorientationabsolute' in window) {
+    window.addEventListener('deviceorientationabsolute', onOrientationAbsolute, true);
+  }
   if (window.DeviceOrientationEvent) {
-    window.addEventListener('deviceorientationabsolute', handleOrientation, true);
-    window.addEventListener('deviceorientation', handleOrientation, true);
+    window.addEventListener('deviceorientation', onOrientationStandard, true);
+  }
+
+  compassState.isListening = true;
+}
+
+function requestCompassPermission() {
+  // iOS 13+ Sensör İzni Talebi
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission()
+      .then(response => {
+        if (response === 'granted') {
+          showToast('Pusula sensörü etkinleştirildi. 🧭');
+          startCompassListening();
+        } else {
+          showToast('Pusula sensör izni verilmedi.');
+        }
+      })
+      .catch(err => {
+        console.warn(err);
+        showToast('Sensör başlatılamadı.');
+      });
+  } else {
+    startCompassListening();
+    showToast('Pusula sensörü aktif. Telefonunuzu düz tutunuz.');
+  }
+}
+
+function processOrientationEvent(e, isAbsolute) {
+  let heading = null;
+
+  // 1. iOS webkitCompassHeading (Doğrudan Manyetik/Gerçek Kuzey, eğim telafili)
+  if (typeof e.webkitCompassHeading === 'number' && !isNaN(e.webkitCompassHeading)) {
+    heading = e.webkitCompassHeading;
+  }
+  // 2. Android / Standart Yönelim (Eğim Telafili 3D Hesaplama)
+  else if (e.alpha !== null && e.alpha !== undefined) {
+    const alpha = e.alpha;
+    const beta = e.beta;
+    const gamma = e.gamma;
+
+    // Telefon elde eğik tutulurken (30°-60°) oluşan sapmayı düzeltme
+    if (beta !== null && gamma !== null && (Math.abs(beta) > 8 || Math.abs(gamma) > 8)) {
+      const degToRad = Math.PI / 180;
+      const x = beta * degToRad;  // pitch
+      const y = gamma * degToRad; // roll
+      const z = alpha * degToRad; // yaw
+
+      const cX = Math.cos(x);
+      const cY = Math.cos(y);
+      const cZ = Math.cos(z);
+      const sX = Math.sin(x);
+      const sY = Math.sin(y);
+      const sZ = Math.sin(z);
+
+      const vX = -cZ * sY - sZ * sX * cY;
+      const vY = -sZ * sY + cZ * sX * cY;
+
+      heading = Math.atan2(vX, vY) * (180 / Math.PI);
+      if (heading < 0) heading += 360;
+    } else {
+      // Düz masaüstü
+      heading = (360 - alpha) % 360;
+    }
+  }
+
+  if (heading !== null && !isNaN(heading)) {
+    // Ekran yönelimi düzeltmesi (dikey / yatay)
+    const screenAngle = (window.screen && window.screen.orientation && window.screen.orientation.angle) || window.orientation || 0;
+    heading = (heading + screenAngle + 360) % 360;
+
+    compassState.rawHeading = heading;
+
+    // Düşük geçiren filtre (yumuşak, titreşimsiz akıcı dönüş için)
+    let diff = (heading - compassState.smoothedHeading + 180) % 360 - 180;
+    compassState.smoothedHeading = (compassState.smoothedHeading + diff * 0.25 + 360) % 360;
+
+    state.compassHeading = Math.round(compassState.smoothedHeading);
+    updateCompassUI(state.compassHeading);
   }
 }
 
 function calculateQiblaBearing() {
   const kaabaLat = 21.4225 * (Math.PI / 180);
   const kaabaLng = 39.8262 * (Math.PI / 180);
-  const userLat = state.currentCity.lat * (Math.PI / 180);
-  const userLng = state.currentCity.lng * (Math.PI / 180);
+  const userLat = ((state.currentCity && state.currentCity.lat) || 41.0082) * (Math.PI / 180);
+  const userLng = ((state.currentCity && state.currentCity.lng) || 28.9784) * (Math.PI / 180);
 
-  const y = Math.sin(kaabaLng - userLng);
-  const x = Math.cos(userLat) * Math.tan(kaabaLat) - Math.sin(userLat) * Math.cos(kaabaLng - userLng);
+  const dLng = kaabaLng - userLng;
+  const y = Math.sin(dLng);
+  const x = Math.cos(userLat) * Math.tan(kaabaLat) - Math.sin(userLat) * Math.cos(dLng);
   let qibla = Math.atan2(y, x) * (180 / Math.PI);
   qibla = (qibla + 360) % 360;
 
   state.qiblaBearing = Math.round(qibla);
-  updateCompassUI(0);
+  updateCompassUI(state.compassHeading || 0);
 }
 
-function handleOrientation(e) {
-  let heading = 0;
-  if (e.webkitCompassHeading) {
-    heading = e.webkitCompassHeading;
-  } else if (e.alpha) {
-    heading = 360 - e.alpha;
-  }
-  state.compassHeading = Math.round(heading);
-  updateCompassUI(state.compassHeading);
+function getKaabaDistanceKm() {
+  const R = 6371; // Dünya yarıçapı km
+  const lat1 = ((state.currentCity && state.currentCity.lat) || 41.0082) * (Math.PI / 180);
+  const lng1 = ((state.currentCity && state.currentCity.lng) || 28.9784) * (Math.PI / 180);
+  const lat2 = 21.4225 * (Math.PI / 180);
+  const lng2 = 39.8262 * (Math.PI / 180);
+
+  const dLat = lat2 - lat1;
+  const dLng = lng2 - lng1;
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1) * Math.cos(lat2) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c);
 }
 
 function manualRotateCompass(deg) {
   state.compassHeading = (state.compassHeading + deg + 360) % 360;
+  compassState.smoothedHeading = state.compassHeading;
   updateCompassUI(state.compassHeading);
 }
 
 function updateCompassUI(heading) {
+  const wrapper = document.getElementById('compass-wrapper');
   const dial = document.getElementById('compass-dial');
-  const needle = document.getElementById('compass-needle-kaaba');
+  const seccadeCard = document.getElementById('compass-seccade-card');
+  const rotator = document.getElementById('compass-qibla-rotator');
+  const mekkeCard = document.getElementById('mekke-target-card');
   const statusEl = document.getElementById('qibla-status-banner');
   const degEl = document.getElementById('qibla-heading-deg');
   const targetDegEl = document.getElementById('qibla-target-deg');
+  const distEl = document.getElementById('qibla-distance-km');
 
+  // Konum kapsül metnini güncelle
+  updateQiblaLocationPill();
+
+  // Dış pusula kadranını döndür
   if (dial) dial.style.transform = `rotate(${-heading}deg)`;
-  if (needle) needle.style.transform = `rotate(${state.qiblaBearing - heading}deg)`;
 
+  // Kâbe açısının cihaz yönüne göre bağıl açısı
+  const kaabaRelAngle = (state.qiblaBearing - heading + 360) % 360;
+  if (rotator) rotator.style.transform = `rotate(${kaabaRelAngle}deg)`;
+  // Mekke kartını dik tutarak okunaklı kalmasını sağla
+  if (mekkeCard) mekkeCard.style.transform = `translate(-50%, -50%) rotate(${-kaabaRelAngle}deg)`;
+
+  // Bilgi kutuları
   if (degEl) degEl.textContent = `${heading}°`;
   if (targetDegEl) targetDegEl.textContent = `${state.qiblaBearing}°`;
+  if (distEl) distEl.textContent = `${getKaabaDistanceKm().toLocaleString('tr-TR')} km`;
 
-  const diff = Math.abs(heading - state.qiblaBearing);
-  const aligned = diff <= 6 || diff >= 354;
+  // Kıbleye olan açı farkı [-180, 180]
+  const diff = (state.qiblaBearing - heading + 540) % 360 - 180;
+  const absDiff = Math.abs(diff);
+  const aligned = absDiff <= 6; // ±6 derece tolerans ile tam kıbleye hizalanma
+
+  if (wrapper) wrapper.classList.toggle('aligned', aligned);
+  if (seccadeCard) seccadeCard.classList.toggle('aligned', aligned);
 
   if (statusEl) {
     if (aligned) {
       statusEl.className = 'qibla-aligned-status aligned';
-      statusEl.innerHTML = '<i class="bi bi-check-circle-fill"></i> KIBLEYE HİZALANDINIZ (KÂBE)';
+      statusEl.innerHTML = '<i class="bi bi-check-circle-fill"></i> KIBLEYE YÖNLENDİRİLDİNİZ';
       if (!state.isQiblaAligned) {
-        playHaptic([100, 50, 100]);
+        playHaptic([80, 40, 120]);
+        playCompletionSound();
+        speakQiblaAnnouncement();
         state.isQiblaAligned = true;
       }
     } else {
       statusEl.className = 'qibla-aligned-status not-aligned';
-      statusEl.innerHTML = `<i class="bi bi-compass"></i> Kâbe Açısı: ${state.qiblaBearing}°`;
       state.isQiblaAligned = false;
+
+      if (diff > 0) {
+        statusEl.innerHTML = `<i class="bi bi-arrow-right-circle-fill" style="color:var(--gold-primary);"></i> Sağa Dönünüz (${Math.round(diff)}°)`;
+      } else {
+        statusEl.innerHTML = `<i class="bi bi-arrow-left-circle-fill" style="color:var(--gold-primary);"></i> Sola Dönünüz (${Math.round(absDiff)}°)`;
+      }
     }
   }
+}
+
+function updateQiblaLocationPill() {
+  const pillText = document.getElementById('qibla-location-pill-text');
+  if (!pillText) return;
+  if (!state.currentCity) {
+    pillText.textContent = 'Esenler, Istanbul, Türkiye';
+    return;
+  }
+  const c = state.currentCity;
+  const parts = [];
+  if (c.district) parts.push(c.district);
+  if (c.province && c.province !== c.district) parts.push(c.province);
+  else if (c.name && !parts.includes(c.name)) parts.push(c.name);
+  if (c.country) parts.push(c.country);
+
+  pillText.textContent = parts.length > 0 ? parts.join(', ') : (c.display || 'Esenler, Istanbul, Türkiye');
+}
+
+// Sesli Kıble Uyarısı ("Kıbleye yönlendirildiniz" Seslendirme)
+let lastQiblaSpokenTime = 0;
+function speakQiblaAnnouncement() {
+  if (state.qiblaVoiceEnabled === false) return;
+  const now = Date.now();
+  if (now - lastQiblaSpokenTime < 4500) return; // 4.5 saniye debounce
+  lastQiblaSpokenTime = now;
+
+  showToast('✓ KIBLEYE YÖNLENDİRİLDİNİZ! 🕋');
+
+  // Web Speech Synthesis API
+  if ('speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance('Kıbleye yönlendirildiniz');
+      utter.lang = 'tr-TR';
+      utter.rate = 0.95;
+      utter.pitch = 1.0;
+      utter.volume = 1.0;
+      window.speechSynthesis.speak(utter);
+    } catch (e) {
+      console.warn('SpeechSynthesis error:', e);
+    }
+  }
+}
+
+function toggleQiblaVoice() {
+  state.qiblaVoiceEnabled = (state.qiblaVoiceEnabled === false) ? true : false;
+  saveToStorage();
+  updateQiblaVoiceUI();
+  showToast(state.qiblaVoiceEnabled ? 'Sesli Kıble Açık: Kıble bulununca "Kıbleye yönlendirildiniz" diyecek 🗣️' : 'Sesli Kıble Kapatıldı 🔇');
+}
+
+function updateQiblaVoiceUI() {
+  const btn = document.getElementById('btn-toggle-qibla-voice');
+  const btnText = document.getElementById('qibla-voice-text');
+  const active = state.qiblaVoiceEnabled !== false;
+  if (btnText) btnText.textContent = active ? 'Sesli Kıble: Açık' : 'Sesli Kıble: Kapalı';
+  if (btn) {
+    btn.innerHTML = active
+      ? '<i class="bi bi-volume-up-fill" style="color:var(--gold-primary);"></i> <span id="qibla-voice-text">Sesli Kıble: Açık</span>'
+      : '<i class="bi bi-volume-mute-fill" style="color:var(--text-muted);"></i> <span id="qibla-voice-text">Sesli Kıble: Kapalı</span>';
+  }
+}
+
+// --- OTOMATİK KONUM MOTORU (GPS GEOLOCATION) ---
+async function detectUserLocation(isUserInitiated = false) {
+  if (isUserInitiated) {
+    showToast('GPS ile konumunuz aranıyor... 🛰️');
+  }
+
+  // 1. Capacitor Geolocation Eklentisi (Mobil Cihazlarda En Güvenilir)
+  const hasCapacitorGeo = typeof window !== 'undefined' &&
+    window.Capacitor &&
+    window.Capacitor.Plugins &&
+    window.Capacitor.Plugins.Geolocation;
+
+  if (hasCapacitorGeo) {
+    try {
+      const geo = window.Capacitor.Plugins.Geolocation;
+      let perm = await geo.checkPermissions();
+      if (!perm || perm.location !== 'granted') {
+        perm = await geo.requestPermissions();
+      }
+      if (perm && (perm.location === 'granted' || perm.coarseLocation === 'granted')) {
+        const pos = await geo.getCurrentPosition({ enableHighAccuracy: true, timeout: 12000 });
+        if (pos && pos.coords) {
+          applyDetectedCoords(pos.coords.latitude, pos.coords.longitude, isUserInitiated);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Capacitor Geolocation error:', e);
+    }
+  }
+
+  // 2. Standart Geolocation API
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        applyDetectedCoords(pos.coords.latitude, pos.coords.longitude, isUserInitiated);
+      },
+      (err) => {
+        console.warn('Navigator geolocation error, IP fallback trying:', err);
+        fetchIpLocation(isUserInitiated);
+      },
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 60000 }
+    );
+  } else {
+    fetchIpLocation(isUserInitiated);
+  }
+}
+
+function fetchIpLocation(isUserInitiated = false) {
+  fetch('https://ipapi.co/json/')
+    .then(res => res.json())
+    .then(data => {
+      if (data && data.latitude && data.longitude) {
+        applyDetectedCoords(data.latitude, data.longitude, isUserInitiated);
+      } else if (isUserInitiated) {
+        showToast('Konum belirlenemedi. Lütfen listeden şehir seçiniz.');
+      }
+    })
+    .catch(() => {
+      if (isUserInitiated) {
+        showToast('Konum servislerine ulaşılamadı. Lütfen listeden şehir seçiniz.');
+      }
+    });
+}
+
+function applyDetectedCoords(lat, lng, showFeedback = true) {
+  const nearest = findNearestCity(lat, lng);
+  const displayName = nearest ? (nearest.display || `${nearest.province} / ${nearest.district}`) : `${lat.toFixed(2)}°, ${lng.toFixed(2)}°`;
+
+  state.currentCity = {
+    name: nearest ? nearest.name : 'GPS Konumu',
+    display: `${displayName} 📍`,
+    province: nearest ? nearest.province : '',
+    district: nearest ? nearest.district : '',
+    lat: Number(lat.toFixed(4)),
+    lng: Number(lng.toFixed(4)),
+    isAutoGPS: true,
+    country: nearest ? (nearest.country || 'Türkiye') : 'Türkiye'
+  };
+
+  saveToStorage();
+  initPrayerTimes();
+  calculateQiblaBearing();
+  closeAllModals();
+
+  if (showFeedback) {
+    showToast(`✓ Konumunuz belirlendi: ${state.currentCity.display}`);
+    playHaptic([60, 40]);
+  }
+}
+
+function findNearestCity(lat, lng) {
+  const locs = (typeof window !== 'undefined' && window.ALL_LOCATIONS && window.ALL_LOCATIONS.length > 0)
+    ? window.ALL_LOCATIONS
+    : CITIES;
+
+  let nearest = null;
+  let minDist = Infinity;
+
+  for (let i = 0; i < locs.length; i++) {
+    const c = locs[i];
+    const dLat = (c.lat - lat) * (Math.PI / 180);
+    const dLng = (c.lng - lng) * (Math.PI / 180);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat * (Math.PI / 180)) * Math.cos(c.lat * (Math.PI / 180)) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const dist = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    if (dist < minDist) {
+      minDist = dist;
+      nearest = c;
+    }
+  }
+
+  return nearest;
 }
 
 // --- 9. KAZA NAMAZI & ORUÇ TAKİPÇİSİ ---
@@ -816,44 +1199,565 @@ function contributeCircle(circleId, amount) {
   }
 }
 
-// --- 13. EZAN MAKAMLARI VE SESLER ---
-function playEzanMakam(makam) {
-  const frequencies = {
-    saba: [330, 370, 415, 493],
-    rast: [261, 293, 329, 392],
-    hicaz: [293, 311, 370, 440],
-    ussak: [293, 329, 349, 440],
-    segah: [311, 349, 392, 466]
-  };
+// --- 13. GERÇEK EZAN SESLERİ, MAKAMLAR & BİLDİRİM TONLARI MOTORU ---
+const REAL_EZAN_LIST = {
+  saba: {
+    id: 'saba',
+    title: 'Sabah: Saba Makamı Ezanı',
+    desc: 'Sabahın seher vaktine mahsus, huşû ve hüzün veren Saba makamı',
+    url: 'ezan_default.mp3'
+  },
+  rast: {
+    id: 'rast',
+    title: 'Öğle: Rast Makamı Ezanı',
+    desc: 'Günün en aydınlık anında canlılık ve neşve veren asil Rast makamı',
+    url: 'ezan_default.mp3'
+  },
+  hicaz: {
+    id: 'hicaz',
+    title: 'İkindi: Hicaz Makamı Ezanı',
+    desc: 'Günün yorgunluğunu alan derin ve yakarış dolu Hicaz makamı',
+    url: 'ezan_mekke.ogg'
+  },
+  segah: {
+    id: 'segah',
+    title: 'Akşam: Segah Makamı Ezanı',
+    desc: 'Günün batışında telaşsız, tesirli ve hızlı Segah makamı',
+    url: 'ezan_default.mp3'
+  },
+  ussak: {
+    id: 'ussak',
+    title: 'Yatsı: Uşşak Makamı Ezanı',
+    desc: 'Gece istirahatine girerken hüznü ve huzuru buluşturan Uşşak makamı',
+    url: 'ezan_mekke.ogg'
+  },
+  mekke: {
+    id: 'mekke',
+    title: 'Mekke-i Mükerreme Ezanı',
+    desc: 'Mescid-i Haram (Kâbe) Müezzini - Gerçek Orijinal Kayıt',
+    url: 'ezan_mekke.ogg'
+  },
+  default: {
+    id: 'default',
+    title: 'Klasik Türk & Hicaz Ezanı',
+    desc: 'Huşû Veren Geleneksel Ezan-ı Muhammedi',
+    url: 'ezan_default.mp3'
+  },
+  medine: {
+    id: 'medine',
+    title: 'Medine-i Münevvere Ezanı',
+    desc: 'Mescid-i Nebevi Müezzini - Çevrimiçi Kayıt',
+    url: 'https://upload.wikimedia.org/wikipedia/commons/8/86/Azan.ogg'
+  }
+};
 
+// Çevrimdışı Manevi Kısa Bildirim Tonları (Web Audio API)
+function playNotificationTone(toneKey = 'tekbir') {
+  if (!state.soundEnabled) return;
   try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const freqs = frequencies[makam] || frequencies.hicaz;
-    let delay = 0;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
 
-    freqs.forEach((f, idx) => {
-      setTimeout(() => {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+    if (toneKey === 'tekbir') {
+      // 3 Aşamalı Huşû Veren Tekbir Armonisi (Allahu Ekber Akordu)
+      const notes = [
+        { f: 349.23, start: 0, dur: 0.45 },
+        { f: 440.00, start: 0.45, dur: 0.55 },
+        { f: 523.25, start: 1.0, dur: 1.3 }
+      ];
+      notes.forEach(n => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(f, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+        osc.frequency.setValueAtTime(n.f, now + n.start);
+        gain.gain.setValueAtTime(0, now + n.start);
+        gain.gain.linearRampToValueAtTime(0.28, now + n.start + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + n.start + n.dur);
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 1.2);
-      }, delay);
-      delay += 400;
+        gain.connect(ctx.destination);
+        osc.start(now + n.start);
+        osc.stop(now + n.start + n.dur);
+      });
+    } else if (toneKey === 'chime') {
+      // Manevi Çınlayan Akustik Çan
+      [523.25, 1046.50, 1567.98].forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = idx === 0 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        gain.gain.setValueAtTime(0.25 / (idx + 1), now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 2.8);
+      });
+    } else if (toneKey === 'ney') {
+      // Dinlendirici Ney / Flüt Nağmesi
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(523.25, now + 0.5);
+      osc.frequency.exponentialRampToValueAtTime(493.88, now + 1.2);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.22, now + 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 2.0);
+    } else if (toneKey === 'bird') {
+      // Seher Kuş Cıvıltısı
+      [0, 0.22, 0.48].forEach((st, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(2600 + (i * 220), now + st);
+        osc.frequency.exponentialRampToValueAtTime(3400 + (i * 150), now + st + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(2200, now + st + 0.18);
+        gain.gain.setValueAtTime(0.18, now + st);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + st + 0.18);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + st);
+        osc.stop(now + st + 0.18);
+      });
+    } else {
+      // Standart Çift Bip
+      [880, 1175].forEach((f, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(f, now + i * 0.12);
+        gain.gain.setValueAtTime(0.2, now + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.1);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.12);
+        osc.stop(now + i * 0.12 + 0.1);
+      });
+    }
+  } catch (e) {
+    console.warn(e);
+  }
+}
+
+function playEzanMakam(makam) {
+  const item = REAL_EZAN_LIST[makam] || REAL_EZAN_LIST.saba;
+  playEzanPreview(makam);
+  showToast(`▶ ${item.title} çalınıyor...`);
+}
+
+function playEzanPreview(key) {
+  if (state.activeEzanAudio) {
+    state.activeEzanAudio.pause();
+    state.activeEzanAudio = null;
+  }
+
+  let url = '';
+  let title = '';
+
+  if (key === 'custom') {
+    if (!state.customEzanData) {
+      showToast('Henüz özel bir ses dosyası seçilmedi.');
+      return;
+    }
+    url = state.customEzanData;
+    title = state.customEzanName || 'Özel Ezan';
+  } else {
+    const item = REAL_EZAN_LIST[key] || REAL_EZAN_LIST.mekke;
+    url = item.url;
+    title = item.title;
+  }
+
+  playAudioUrlWithBar(url, title);
+}
+
+function playAudioUrlWithBar(url, title) {
+  stopCurrentEzanAudio();
+  try {
+    state.activeEzanAudio = new Audio(url);
+    const playerBar = document.getElementById('ezan-player-bar');
+    const playingTitle = document.getElementById('ezan-playing-title');
+    const quickBtn = document.getElementById('btn-quick-play-ezan');
+    const testBtn = document.getElementById('btn-test-prayer-sound');
+
+    if (playerBar) playerBar.style.display = 'flex';
+    if (playingTitle) playingTitle.textContent = `▶ Çalınıyor: ${title}`;
+    if (quickBtn) quickBtn.innerHTML = '<i class="bi bi-stop-circle-fill" style="color:#ef4444;"></i>';
+    if (testBtn) testBtn.innerHTML = '<i class="bi bi-stop-circle-fill" style="color:#ef4444;"></i> Sesi Durdur';
+
+    state.activeEzanAudio.play().then(() => {
+      showToast(`${title} çalınıyor... 🕌`);
+      playHaptic(40);
+    }).catch(e => {
+      console.warn('Audio play error, trying fallback:', e);
+      if (url !== 'ezan_default.mp3') {
+        playAudioUrlWithBar('ezan_default.mp3', `${title} (Çevrimdışı Klasik)`);
+      } else {
+        showToast('Ses yüklenemedi. Dosya formatını kontrol ediniz.');
+        stopCurrentEzanAudio();
+      }
     });
 
-    showToast(`${makam.toUpperCase()} makamı ezan melodisi çalınıyor... 🕌`);
-  } catch (e) {
+    state.activeEzanAudio.onended = () => {
+      stopCurrentEzanAudio();
+    };
+  } catch (err) {
     showToast('Ses motoru başlatılamadı.');
   }
 }
 
+function stopCurrentEzanAudio() {
+  if (state.activeEzanAudio) {
+    try { state.activeEzanAudio.pause(); } catch(e) {}
+    state.activeEzanAudio = null;
+  }
+  const playerBar = document.getElementById('ezan-player-bar');
+  const quickBtn = document.getElementById('btn-quick-play-ezan');
+  const testBtn = document.getElementById('btn-test-prayer-sound');
+
+  if (playerBar) playerBar.style.display = 'none';
+  if (quickBtn) quickBtn.innerHTML = '<i class="bi bi-play-circle-fill"></i>';
+  if (testBtn) testBtn.innerHTML = '<i class="bi bi-play-circle-fill"></i> Sesi Dinle (Test)';
+}
+
+function toggleCurrentEzanAudio() {
+  if (state.activeEzanAudio && !state.activeEzanAudio.paused) {
+    stopCurrentEzanAudio();
+    showToast('Ezan durduruldu.');
+  } else {
+    const key = state.defaultEzan || 'mekke';
+    playEzanPreview(key);
+  }
+}
+
+function selectDefaultEzan(key) {
+  state.defaultEzan = key;
+  saveToStorage();
+  updateEzanUI();
+  const name = key === 'custom' ? (state.customEzanName || 'Özel Ses') : (REAL_EZAN_LIST[key] ? REAL_EZAN_LIST[key].title : key);
+  showToast(`✓ Varsayılan ezan seçildi: ${name}`);
+  playHaptic([40, 40]);
+}
+
+function handleCustomEzanFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('audio/') && !file.name.match(/\.(mp3|wav|ogg|m4a|aac)$/i)) {
+    showToast('Lütfen geçerli bir ses dosyası (.mp3, .wav, .m4a vb.) seçiniz.');
+    return;
+  }
+
+  showToast('Ses dosyası yükleniyor...');
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    state.customEzanData = e.target.result;
+    state.customEzanName = file.name;
+    state.defaultEzan = 'custom';
+    saveToStorage();
+    updateEzanUI();
+    showToast(`✓ "${file.name}" ezan sesi olarak kaydedildi! 🎵`);
+    playEzanPreview('custom');
+  };
+  reader.onerror = () => {
+    showToast('Dosya okunamadı. Lütfen başka bir dosya deneyiniz.');
+  };
+  reader.readAsDataURL(file);
+}
+
+function openEzanSettingsModal() {
+  openPrayerSoundModal();
+}
+
+function openPrayerSoundModal(prayerKey) {
+  if (prayerKey) {
+    state.activePrayerConfigKey = prayerKey;
+  }
+  switchSoundModalTab('prayers');
+  renderPrayerSoundConfigUI();
+  checkNotificationPermissionNotice();
+  const d = document.getElementById('dialog-ezan-settings');
+  if (d) d.showModal();
+}
+
+function switchSoundModalTab(tabId) {
+  const btnPrayers = document.getElementById('tab-btn-sound-prayers');
+  const btnLibrary = document.getElementById('tab-btn-sound-library');
+  const secPrayers = document.getElementById('sound-sec-prayers');
+  const secLibrary = document.getElementById('sound-sec-library');
+
+  if (tabId === 'prayers') {
+    if (btnPrayers) btnPrayers.classList.add('active');
+    if (btnLibrary) btnLibrary.classList.remove('active');
+    if (secPrayers) secPrayers.style.display = 'block';
+    if (secLibrary) secLibrary.style.display = 'none';
+  } else {
+    if (btnPrayers) btnPrayers.classList.remove('active');
+    if (btnLibrary) btnLibrary.classList.add('active');
+    if (secPrayers) secPrayers.style.display = 'none';
+    if (secLibrary) secLibrary.style.display = 'block';
+  }
+}
+
+function selectPrayerSoundConfig(prayerKey) {
+  state.activePrayerConfigKey = prayerKey;
+  renderPrayerSoundConfigUI();
+}
+
+function renderPrayerSoundConfigUI() {
+  const pKey = state.activePrayerConfigKey || 'ogle';
+  if (!state.prayerAlerts[pKey]) {
+    state.prayerAlerts[pKey] = { ...DEFAULT_PRAYER_ALERTS[pKey] };
+  }
+  const conf = state.prayerAlerts[pKey];
+
+  // Hap butonlar (Sabah, Güneş, Öğle, İkindi, Akşam, Yatsı)
+  document.querySelectorAll('.prayer-select-pill').forEach(pill => {
+    pill.classList.toggle('active', pill.dataset.prayer === pKey);
+  });
+
+  // Vakit başlığı ve saati
+  const titleEl = document.getElementById('conf-prayer-title');
+  const timeEl = document.getElementById('conf-prayer-time');
+  const badgeEl = document.getElementById('conf-prayer-badge');
+
+  const prayerNames = {
+    imsak: 'İmsak / Sabah Vakti',
+    gunes: 'Güneş Doğuşu',
+    ogle: 'Öğle Vakti',
+    ikindi: 'İkindi Vakti',
+    aksam: 'Akşam Vakti',
+    yatsi: 'Yatsı Vakti'
+  };
+
+  const pTime = (state.prayerTimes && {
+    imsak: state.prayerTimes.Fajr,
+    gunes: state.prayerTimes.Sunrise,
+    ogle: state.prayerTimes.Dhuhr,
+    ikindi: state.prayerTimes.Asr,
+    aksam: state.prayerTimes.Maghrib,
+    yatsi: state.prayerTimes.Isha
+  }[pKey]) || '--:--';
+
+  if (titleEl) titleEl.textContent = prayerNames[pKey] || pKey;
+  if (timeEl) timeEl.textContent = `Vakit Saati: ${pTime}`;
+
+  // Mod butonları & badge
+  const mode = conf.soundMode || 'ezan';
+  document.querySelectorAll('.sound-mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === mode);
+  });
+
+  const modeBadges = {
+    ezan: { text: 'Tam Ezan', cls: 'mode-ezan' },
+    tone: { text: 'Kısa Ses', cls: 'mode-tone' },
+    vibrate: { text: 'Titreşim', cls: 'mode-vibrate' },
+    off: { text: 'Kapalı', cls: 'mode-off' }
+  };
+  if (badgeEl && modeBadges[mode]) {
+    badgeEl.className = `conf-mode-badge ${modeBadges[mode].cls}`;
+    badgeEl.textContent = modeBadges[mode].text;
+  }
+
+  // Grupların görünürlüğü
+  const ezanGroup = document.getElementById('conf-ezan-group');
+  const toneGroup = document.getElementById('conf-tone-group');
+  if (ezanGroup) ezanGroup.style.display = (mode === 'ezan') ? 'block' : 'none';
+  if (toneGroup) toneGroup.style.display = (mode === 'tone') ? 'block' : 'none';
+
+  // Seçim kutuları
+  const ezanSelect = document.getElementById('select-prayer-ezan');
+  if (ezanSelect) ezanSelect.value = conf.ezanKey || 'default';
+
+  const toneSelect = document.getElementById('select-prayer-tone');
+  if (toneSelect) toneSelect.value = conf.notificationTone || 'tekbir';
+
+  // Özel dosya bilgisi
+  const customFileInfo = document.getElementById('prayer-custom-file-info');
+  const customFileName = document.getElementById('prayer-custom-filename');
+  if (conf.customEzanName && conf.customEzanData) {
+    if (customFileInfo) customFileInfo.style.display = 'flex';
+    if (customFileName) customFileName.textContent = conf.customEzanName;
+  } else {
+    if (customFileInfo) customFileInfo.style.display = 'none';
+  }
+}
+
+function setPrayerSoundMode(mode) {
+  const pKey = state.activePrayerConfigKey || 'ogle';
+  if (!state.prayerAlerts[pKey]) state.prayerAlerts[pKey] = { ...DEFAULT_PRAYER_ALERTS[pKey] };
+  state.prayerAlerts[pKey].soundMode = mode;
+  saveToStorage();
+  renderPrayerSoundConfigUI();
+  updatePrayerTimesUI();
+  const label = mode === 'ezan' ? 'Tam Ezan Oku' : mode === 'tone' ? 'Kısa Bildirim Sesi' : mode === 'vibrate' ? 'Titreşim' : 'Kapalı';
+  showToast(`✓ ${state.prayerAlerts[pKey].name} için: ${label}`);
+}
+
+function changePrayerEzanSound(ezanKey) {
+  const pKey = state.activePrayerConfigKey || 'ogle';
+  if (!state.prayerAlerts[pKey]) state.prayerAlerts[pKey] = { ...DEFAULT_PRAYER_ALERTS[pKey] };
+  state.prayerAlerts[pKey].ezanKey = ezanKey;
+  saveToStorage();
+  renderPrayerSoundConfigUI();
+  const name = REAL_EZAN_LIST[ezanKey] ? REAL_EZAN_LIST[ezanKey].title : ezanKey;
+  showToast(`✓ ${state.prayerAlerts[pKey].name} ezanı: ${name}`);
+}
+
+function changePrayerNotificationTone(toneKey) {
+  const pKey = state.activePrayerConfigKey || 'ogle';
+  if (!state.prayerAlerts[pKey]) state.prayerAlerts[pKey] = { ...DEFAULT_PRAYER_ALERTS[pKey] };
+  state.prayerAlerts[pKey].notificationTone = toneKey;
+  saveToStorage();
+  playNotificationTone(toneKey);
+  showToast('✓ Bildirim tonu seçildi.');
+}
+
+function handlePrayerCustomAudioUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('audio/') && !file.name.match(/\.(mp3|wav|ogg|m4a|aac)$/i)) {
+    showToast('Lütfen geçerli bir ses dosyası (.mp3, .wav, vb.) seçiniz.');
+    return;
+  }
+
+  showToast('Özel ses yükleniyor...');
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const pKey = state.activePrayerConfigKey || 'ogle';
+    if (!state.prayerAlerts[pKey]) state.prayerAlerts[pKey] = { ...DEFAULT_PRAYER_ALERTS[pKey] };
+    state.prayerAlerts[pKey].customEzanData = e.target.result;
+    state.prayerAlerts[pKey].customEzanName = file.name;
+    state.prayerAlerts[pKey].ezanKey = 'custom';
+    saveToStorage();
+    renderPrayerSoundConfigUI();
+    showToast(`✓ "${file.name}" bu vakit için kaydedildi!`);
+    testActivePrayerSound();
+  };
+  reader.onerror = () => {
+    showToast('Dosya okunamadı.');
+  };
+  reader.readAsDataURL(file);
+}
+
+function testActivePrayerSound() {
+  const pKey = state.activePrayerConfigKey || 'ogle';
+  const conf = state.prayerAlerts[pKey] || DEFAULT_PRAYER_ALERTS[pKey];
+
+  if (state.activeEzanAudio) {
+    stopCurrentEzanAudio();
+    return;
+  }
+
+  if (conf.soundMode === 'off') {
+    showToast('Bu vakit için ses kapalı olarak ayarlanmış.');
+    return;
+  }
+
+  if (conf.soundMode === 'vibrate') {
+    playHaptic([200, 100, 200, 100, 400]);
+    showToast('Titreşim testi yapıldı.');
+    return;
+  }
+
+  if (conf.soundMode === 'tone') {
+    playNotificationTone(conf.notificationTone || 'tekbir');
+    playHaptic(50);
+    showToast('Bildirim sesi testi yapıldı.');
+    return;
+  }
+
+  // Tam ezan
+  let url = '';
+  let title = '';
+
+  if (conf.ezanKey === 'custom') {
+    if (!conf.customEzanData) {
+      showToast('Henüz bu vakit için özel dosya seçilmedi.');
+      return;
+    }
+    url = conf.customEzanData;
+    title = conf.customEzanName || 'Özel Ezan';
+  } else {
+    const item = REAL_EZAN_LIST[conf.ezanKey] || REAL_EZAN_LIST.default;
+    url = item.url;
+    title = item.title;
+  }
+
+  playAudioUrlWithBar(url, `${conf.name}: ${title}`);
+}
+
+function copySettingsToAllPrayers() {
+  const pKey = state.activePrayerConfigKey || 'ogle';
+  const conf = state.prayerAlerts[pKey] || DEFAULT_PRAYER_ALERTS[pKey];
+
+  ['imsak', 'gunes', 'ogle', 'ikindi', 'aksam', 'yatsi'].forEach(k => {
+    if (k !== pKey) {
+      state.prayerAlerts[k] = {
+        ...state.prayerAlerts[k],
+        soundMode: conf.soundMode,
+        ezanKey: conf.ezanKey,
+        notificationTone: conf.notificationTone,
+        customEzanData: conf.customEzanData,
+        customEzanName: conf.customEzanName
+      };
+    }
+  });
+
+  saveToStorage();
+  updatePrayerTimesUI();
+  showToast(`✓ ${conf.name} ayarları tüm 6 vakte uygulandı! 📋`);
+}
+
+function checkNotificationPermissionNotice() {
+  const banner = document.getElementById('notification-perm-box');
+  if (!banner) return;
+  if ('Notification' in window) {
+    if (Notification.permission === 'default') {
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+    }
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+function requestSystemNotificationPermission() {
+  if ('Notification' in window) {
+    Notification.requestPermission().then(perm => {
+      if (perm === 'granted') {
+        showToast('✓ Bildirim izni verildi! Vakit girdiğinde bildirim alacaksınız.');
+        try {
+          new Notification('Zikir & Vakit Pro', {
+            body: 'Bildirimler başarıyla etkinleştirildi.',
+            icon: 'manifest.json'
+          });
+        } catch(e) {}
+      } else {
+        showToast('Bildirim izni reddedildi.');
+      }
+      checkNotificationPermissionNotice();
+    });
+  }
+}
+
+function updateEzanUI() {
+  document.querySelectorAll('.ezan-item-card').forEach(c => c.classList.remove('active-selected'));
+  const activeKey = state.defaultEzan || 'mekke';
+  const card = document.getElementById(`ezan-card-${activeKey}`);
+  if (card) card.classList.add('active-selected');
+}
+
 // --- 14. NAMAZ VAKİTLERİ & DİYANET API ---
+let countdownInterval = null;
+
 async function initPrayerTimes() {
   const dateObj = new Date();
   const gregStr = dateObj.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -880,7 +1784,9 @@ async function initPrayerTimes() {
     fallbackPrayerTimes();
   }
 
-  setInterval(updateCountdown, 1000);
+  if (!countdownInterval) {
+    countdownInterval = setInterval(updateCountdown, 1000);
+  }
 }
 
 function fallbackPrayerTimes() {
@@ -908,6 +1814,30 @@ function updatePrayerTimesUI() {
   setT('time-ikindi', t.Asr);
   setT('time-aksam', t.Maghrib);
   setT('time-yatsi', t.Isha);
+
+  // Vakit Çubuğundaki Ses Rozetlerini Güncelle
+  const prayerKeys = ['imsak', 'gunes', 'ogle', 'ikindi', 'aksam', 'yatsi'];
+  prayerKeys.forEach(k => {
+    const iconEl = document.getElementById(`sound-icon-${k}`);
+    if (iconEl) {
+      const conf = (state.prayerAlerts && state.prayerAlerts[k]) || DEFAULT_PRAYER_ALERTS[k];
+      const mode = conf.soundMode || 'ezan';
+      if (mode === 'ezan') {
+        iconEl.className = 'bi bi-volume-up-fill prayer-sound-icon';
+        iconEl.style.color = 'var(--gold-primary)';
+      } else if (mode === 'tone') {
+        iconEl.className = 'bi bi-bell-fill prayer-sound-icon';
+        iconEl.style.color = '#38bdf8';
+      } else if (mode === 'vibrate') {
+        iconEl.className = 'bi bi-phone-vibrate-fill prayer-sound-icon';
+        iconEl.style.color = '#fbbf24';
+      } else {
+        iconEl.className = 'bi bi-bell-slash prayer-sound-icon';
+        iconEl.style.color = '#64748b';
+      }
+    }
+  });
+
   updateCountdown();
 }
 
@@ -948,6 +1878,123 @@ function updateCountdown() {
     const secs = String(totalSec % 60).padStart(2, '0');
     if (cdEl) cdEl.textContent = `${hours}:${mins}:${secs}`;
   }
+
+  // Vakit Girdi mi Kontrolü (Dakika başında ve saniye 0 olduğunda)
+  const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const todayKey = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+
+  const prayerKeyMap = {
+    'İmsak': 'imsak',
+    'Güneş': 'gunes',
+    'Öğle': 'ogle',
+    'İkindi': 'ikindi',
+    'Akşam': 'aksam',
+    'Yatsı': 'yatsi'
+  };
+
+  times.forEach(p => {
+    if (p.time === currentHHMM && now.getSeconds() === 0) {
+      const pKey = prayerKeyMap[p.name];
+      const triggerId = `${todayKey}_${pKey}`;
+      if (state.lastTriggeredPrayer !== triggerId) {
+        state.lastTriggeredPrayer = triggerId;
+        triggerPrayerAlert(pKey, p.name, p.time);
+      }
+    }
+  });
+}
+
+function triggerPrayerAlert(pKey, pName, pTime) {
+  const conf = (state.prayerAlerts && state.prayerAlerts[pKey]) || DEFAULT_PRAYER_ALERTS[pKey];
+
+  // Sistem bildirimi
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try {
+      new Notification(`${pName} Vakti Girdi (${pTime})`, {
+        body: 'Haydin namaza, haydin kurtuluşa! Vaktin bereketini kaçırmayınız.',
+        icon: 'manifest.json'
+      });
+    } catch(e) {}
+  }
+
+  // Titreşim
+  playHaptic([200, 100, 200, 100, 500]);
+
+  if (conf.soundMode === 'off') {
+    showToast(`🕌 ${pName} Vakti Girdi (${pTime})`);
+    return;
+  }
+
+  if (conf.soundMode === 'vibrate') {
+    showToast(`📳 ${pName} Vakti Girdi (${pTime})`);
+    return;
+  }
+
+  if (conf.soundMode === 'tone') {
+    playNotificationTone(conf.notificationTone || 'tekbir');
+    showToast(`🔔 ${pName} Vakti Girdi (${pTime})`);
+    return;
+  }
+
+  // Tam Ezan Oku
+  let url = '';
+  let title = '';
+
+  if (conf.ezanKey === 'custom' && conf.customEzanData) {
+    url = conf.customEzanData;
+    title = conf.customEzanName || 'Özel Ezan';
+  } else {
+    const item = REAL_EZAN_LIST[conf.ezanKey] || REAL_EZAN_LIST.default;
+    url = item.url;
+    title = item.title;
+  }
+
+  try {
+    if (state.activeAlertAudio) {
+      state.activeAlertAudio.pause();
+      state.activeAlertAudio = null;
+    }
+    state.activeAlertAudio = new Audio(url);
+    state.activeAlertAudio.play().catch(e => {
+      console.warn('Alert audio play error:', e);
+      if (url !== 'ezan_default.mp3') {
+        state.activeAlertAudio = new Audio('ezan_default.mp3');
+        state.activeAlertAudio.play().catch(()=>{});
+      }
+    });
+  } catch (e) {}
+
+  // Canlı Bildirim Modalı Aç
+  const alertModal = document.getElementById('dialog-prayer-alert');
+  const alertTitle = document.getElementById('alert-prayer-title');
+  const alertTime = document.getElementById('alert-prayer-time');
+  const alertSound = document.getElementById('alert-sound-playing');
+
+  if (alertTitle) alertTitle.textContent = `${pName} Vakti Girdi!`;
+  if (alertTime) alertTime.textContent = pTime;
+  if (alertSound) alertSound.textContent = `▶ ${title} Çalınıyor...`;
+  if (alertModal) alertModal.showModal();
+}
+
+function stopPrayerAlert() {
+  if (state.activeAlertAudio) {
+    try { state.activeAlertAudio.pause(); } catch(e) {}
+    state.activeAlertAudio = null;
+  }
+  stopCurrentEzanAudio();
+  const alertModal = document.getElementById('dialog-prayer-alert');
+  if (alertModal) alertModal.close();
+  showToast('Ezan durduruldu.');
+}
+
+function closePrayerAlert() {
+  const alertModal = document.getElementById('dialog-prayer-alert');
+  if (alertModal) alertModal.close();
+}
+
+function toggleEzanDuaText() {
+  const el = document.getElementById('ezan-dua-text-box');
+  if (el) el.style.display = (el.style.display === 'none') ? 'block' : 'none';
 }
 
 // --- 15. VİRDLER, ESMÂÜL HÜSNÂ, İSTATİSTİKLER ---
@@ -1303,7 +2350,12 @@ function saveToStorage() {
       theme: state.theme,
       kazaPrayers: state.kazaPrayers,
       communityCircles: state.communityCircles,
-      history: state.history
+      history: state.history,
+      defaultEzan: state.defaultEzan,
+      customEzanName: state.customEzanName,
+      customEzanData: state.customEzanData,
+      prayerAlerts: state.prayerAlerts,
+      qiblaVoiceEnabled: state.qiblaVoiceEnabled
     };
     localStorage.setItem('vakit_zikir_pro_state', JSON.stringify(data));
   } catch (e) {}
@@ -1315,6 +2367,9 @@ function loadFromStorage() {
     if (raw) {
       const parsed = JSON.parse(raw);
       state = { ...state, ...parsed };
+      if (parsed.prayerAlerts) {
+        state.prayerAlerts = { ...JSON.parse(JSON.stringify(DEFAULT_PRAYER_ALERTS)), ...parsed.prayerAlerts };
+      }
     }
   } catch (e) {}
 }
